@@ -1,16 +1,45 @@
-# campus_connect_app_login
+# Campus Connect
 
-A new Flutter project.
+Campus Connect is a campus-oriented application designed to facilitate communication and access to essential university services. The goal of this project is to provide students with a centralized platform where they can stay informed, interact with campus resources, and manage academic-related information more efficiently.
 
-## Getting Started
+This project was developed as part of an academic initiative to apply full-stack development concepts in a real-world scenario.
 
-This project is a starting point for a Flutter application.
+---
 
-A few resources to get you started if this is your first Flutter project:
+## Features
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+- User authentication (login and registration)
+- Student profile management
+- Access to campus announcements and updates
+- Communication between students and campus administration
+- Centralized access to academic or campus-related information
+- Simple and intuitive user interface
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+---
+
+## Technologies Used
+
+### Frontend
+- Flutter 
+
+### Backend
+- Django / Django REST Framework 
+
+### Database
+- PostgreSQL 
+
+### Tools
+- Git and GitHub
+- Visual Studio Code / Android Studio
+
+
+---
+
+## Project Structure
+
+```text
+campus-connect/
+├── frontend/        # Client-side application
+├── backend/         # Server-side logic and API
+├── README.md
+└── requirements.txt
