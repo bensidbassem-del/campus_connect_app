@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 
 class SubscriptionPage extends StatefulWidget {
+  const SubscriptionPage({super.key});
+
   @override
   _SubscriptionPageState createState() => _SubscriptionPageState();
 }
@@ -46,7 +48,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             Positioned(
               left: 35 * scale,
               top: 129 * scale,
-              child: Container(
+              child: SizedBox(
                 width: 310 * scale,
                 child: TextField(
                   decoration: InputDecoration(
@@ -74,7 +76,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             Positioned(
               left: 35 * scale,
               top: 209 * scale,
-              child: Container(
+              child: SizedBox(
                 width: 310 * scale,
                 child: TextField(
                   decoration: InputDecoration(
@@ -102,7 +104,7 @@ class _SubscriptionPageState extends State<SubscriptionPage> {
             Positioned(
               left: 35 * scale,
               top: 289 * scale,
-              child: Container(
+              child: SizedBox(
                 width: 310 * scale,
                 child: TextField(
                   obscureText: true,
