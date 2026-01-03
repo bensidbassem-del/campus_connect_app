@@ -15,13 +15,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 
 from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable
-from .serializers import (
-    UserSerializer, RegisterSerializer, LoginSerializer,
-    CourseSerializer, CourseCreateSerializer, GroupSerializer,
-    GradeSerializer, GradeUpdateSerializer, AttendanceSerializer,
-    CourseFileSerializer, TimetableSerializer,
-    StudentDetailSerializer, TeacherDetailSerializer
-)
+from .serializers import *
 from .permissions import IsAdmin, IsTeacher, IsStudent, IsApprovedStudent
 
 
