@@ -8,7 +8,7 @@ class StudentHomeScreen extends StatelessWidget {
     return const Scaffold(
       body: Center(
         child: Text(
-          'Hello',
+          'student',
           style: TextStyle(fontSize: 32),
         ),
       ),

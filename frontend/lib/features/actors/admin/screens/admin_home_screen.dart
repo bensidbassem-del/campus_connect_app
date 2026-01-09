@@ -8,7 +8,7 @@ class AdminHomeScreen extends StatelessWidget {
     return const Scaffold(
       body: Center(
         child: Text(
-          'Hello',
+          'admin',
           style: TextStyle(fontSize: 32),
         ),
       ),
