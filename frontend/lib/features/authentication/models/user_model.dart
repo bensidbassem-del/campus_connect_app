@@ -1,41 +1,49 @@
-class AppUser {
-  final String username;
-  final String email;
-  final String firstName;
-  final String lastName;
-  final String? studentId;
-  final String? birthDate;
-  final String? phone;
-  final String? address;
-  final String role;
-  final bool isApproved;
+class Course {
+  final String id;
+  final String name;
+  final String code;
+  final String? teacherId;
+  final List<String> studentGroups;
 
-  AppUser({
-    required this.username,
-    required this.email,
-    required this.firstName,
-    required this.lastName,
-    required this.role,
-    required this.isApproved,
-    this.studentId,
-    this.birthDate,
-    this.phone,
-    this.address,
+  Course({
+    required this.id,
+    required this.name,
+    required this.code,
+    this.teacherId,
+    required this.studentGroups,
   });
+}
 
-  /// 🔗 THIS IS THE LINK
-  factory AppUser.fromJson(Map<String, dynamic> json) {
-    return AppUser(
-      username: json['username'],
-      email: json['email'],
-      firstName: json['first_name'],
-      lastName: json['last_name'],
-      studentId: json['student_id'],
-      birthDate: json['birth_date'],
-      phone: json['phone'],
-      address: json['address'],
-      role: json['role'],
-      isApproved: json['is_approved'],
-    );
-  }
+class User {
+  final String id;
+  final String name;
+  final String email;
+  final String role; // 'student', 'teacher', 'admin', 'pending'
+  final String? groupId;
+  final String? avatarUrl;
+
+  User({
+    required this.id,
+    required this.name,
+    required this.email,
+    required this.role,
+    this.groupId,
+    this.avatarUrl,
+  });
+}
+
+class FileItem {
+  final String id;
+  final String name;
+  final String url;
+  final String category; // 'schedule', 'timetable', 'notice'
+  final DateTime uploadedAt;
+
+  FileItem({
+    required this.id,
+    required this.name,
+    required this.url,
+    required this.category,
+    required this.uploadedAt,
+  });
 }

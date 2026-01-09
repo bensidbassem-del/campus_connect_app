@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'teacher_courses_tab.dart';
-import 'attendance_tab.dart';
-import 'marks_tab.dart';
+import 'student_profile_tab.dart';
+import 'student_schedule_tab.dart';
+import 'student_marks_tab.dart';
 
-class TeacherScreen extends ConsumerWidget {
-  const TeacherScreen({super.key});
+class StudentScreen extends ConsumerWidget {
+  const StudentScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -14,7 +14,7 @@ class TeacherScreen extends ConsumerWidget {
       child: Scaffold(
         appBar: AppBar(
           title: const Text(
-            'Campus Connect - Teacher',
+            'Campus Connect - Student',
             style: TextStyle(
               fontSize: 20,
               fontWeight: FontWeight.bold,
@@ -25,10 +25,15 @@ class TeacherScreen extends ConsumerWidget {
           foregroundColor: Colors.white,
           elevation: 4,
           actions: [
-            IconButton(icon: const Icon(Icons.notifications), onPressed: () {}),
             IconButton(
-              icon: const Icon(Icons.account_circle),
+              icon: const Icon(Icons.notifications),
               onPressed: () {},
+              tooltip: 'Notifications',
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {},
+              tooltip: 'Logout',
             ),
           ],
           bottom: TabBar(
@@ -37,9 +42,9 @@ class TeacherScreen extends ConsumerWidget {
             indicatorColor: Colors.cyanAccent[400],
             indicatorWeight: 3,
             tabs: const [
-              Tab(icon: Icon(Icons.folder), text: 'Courses'),
-              Tab(icon: Icon(Icons.person), text: 'Attendance'),
-              Tab(icon: Icon(Icons.grade), text: 'Marks'),
+              Tab(icon: Icon(Icons.person), text: 'Profile'),
+              Tab(icon: Icon(Icons.schedule), text: 'Schedule'),
+              Tab(icon: Icon(Icons.grade), text: 'Grades'),
             ],
           ),
         ),
@@ -48,11 +53,18 @@ class TeacherScreen extends ConsumerWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
+              colors: [
+                Color(0xFFE0F7FA),
+                Color(0xFFB2EBF2),
+              ],
             ),
           ),
           child: const TabBarView(
-            children: [TeacherCoursesTab(), AttendanceTab(), MarksTab()],
+            children: [
+              StudentProfileTab(),
+              StudentScheduleTab(),
+              StudentMarksTab(),
+            ],
           ),
         ),
       ),

@@ -8,7 +8,7 @@ plugins {
 android {
     namespace = "com.example.campus_connect_app_login"
     compileSdk = flutter.compileSdkVersion
-    ndkVersion = flutter.ndkVersion
+    ndkVersion = "29.0.14206865"
 
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
