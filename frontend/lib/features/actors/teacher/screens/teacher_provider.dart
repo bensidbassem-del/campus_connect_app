@@ -1,6 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'dart:io';
-import 'package:intl/intl.dart';
 
 // ==================== Models ====================
 class TeacherCourse {
@@ -84,9 +83,10 @@ class TeacherFile {
 // ==================== Riverpod Providers ====================
 
 // ✅ CORRECTION : Utiliser AsyncNotifierProvider pour Riverpod 3.x
-final teacherCoursesProvider = AsyncNotifierProvider<TeacherCoursesNotifier, List<TeacherCourse>>(() {
-  return TeacherCoursesNotifier();
-});
+final teacherCoursesProvider =
+    AsyncNotifierProvider<TeacherCoursesNotifier, List<TeacherCourse>>(() {
+      return TeacherCoursesNotifier();
+    });
 
 class TeacherCoursesNotifier extends AsyncNotifier<List<TeacherCourse>> {
   @override
@@ -120,17 +120,22 @@ class TeacherCoursesNotifier extends AsyncNotifier<List<TeacherCourse>> {
       state = AsyncData<List<TeacherCourse>>(courses);
     } catch (e, stackTrace) {
       state = AsyncError<List<TeacherCourse>>(e, stackTrace);
-      print('Error fetching teacher courses: $e');
+      // log('Error fetching teacher courses: $e');
     }
   }
 }
 
 // ✅ CORRECTION : Pour l'attendance
-final attendanceProvider = AsyncNotifierProvider<AttendanceNotifier, Map<String, List<AttendanceRecord>>>(() {
-  return AttendanceNotifier();
-});
+final attendanceProvider =
+    AsyncNotifierProvider<
+      AttendanceNotifier,
+      Map<String, List<AttendanceRecord>>
+    >(() {
+      return AttendanceNotifier();
+    });
 
-class AttendanceNotifier extends AsyncNotifier<Map<String, List<AttendanceRecord>>> {
+class AttendanceNotifier
+    extends AsyncNotifier<Map<String, List<AttendanceRecord>>> {
   @override
   Future<Map<String, List<AttendanceRecord>>> build() async {
     return {};
@@ -141,26 +146,35 @@ class AttendanceNotifier extends AsyncNotifier<Map<String, List<AttendanceRecord
     try {
       // TODO: Backend - GET /api/teacher/courses/$courseId/attendance
       await Future.delayed(const Duration(seconds: 1));
-      final formattedWeek = DateFormat('yyyy-MM-dd').format(week);
 
       // Données simulées
-      final records = List.generate(4, (index) => AttendanceRecord(
-        studentId: 'STU00${index + 1}',
-        studentName: 'Student ${index + 1}',
-        attendance: {
-          DateTime.now(): 'present',
-          DateTime.now().subtract(const Duration(days: 1)): 'absent',
-        },
-      ));
+      final records = List.generate(
+        4,
+        (index) => AttendanceRecord(
+          studentId: 'STU00${index + 1}',
+          studentName: 'Student ${index + 1}',
+          attendance: {
+            DateTime.now(): 'present',
+            DateTime.now().subtract(const Duration(days: 1)): 'absent',
+          },
+        ),
+      );
 
-      state = AsyncData<Map<String, List<AttendanceRecord>>>({courseId: records});
+      state = AsyncData<Map<String, List<AttendanceRecord>>>({
+        courseId: records,
+      });
     } catch (e, stackTrace) {
       state = AsyncError<Map<String, List<AttendanceRecord>>>(e, stackTrace);
-      print('Error fetching attendance: $e');
+      // log('Error fetching attendance: $e');
     }
   }
 
-  Future<void> markAttendance(String courseId, String studentId, DateTime date, String status) async {
+  Future<void> markAttendance(
+    String courseId,
+    String studentId,
+    DateTime date,
+    String status,
+  ) async {
     try {
       // TODO: Backend - POST /api/teacher/courses/$courseId/attendance
       await Future.delayed(const Duration(seconds: 1));
@@ -169,7 +183,9 @@ class AttendanceNotifier extends AsyncNotifier<Map<String, List<AttendanceRecord
         if (data.containsKey(courseId)) {
           final updatedRecords = data[courseId]!.map((record) {
             if (record.studentId == studentId) {
-              final updatedAttendance = Map<DateTime, String>.from(record.attendance);
+              final updatedAttendance = Map<DateTime, String>.from(
+                record.attendance,
+              );
               updatedAttendance[date] = status;
               return AttendanceRecord(
                 studentId: record.studentId,
@@ -192,9 +208,10 @@ class AttendanceNotifier extends AsyncNotifier<Map<String, List<AttendanceRecord
 }
 
 // ✅ CORRECTION : Pour les notes
-final marksProvider = AsyncNotifierProvider<MarksNotifier, Map<String, List<Mark>>>(() {
-  return MarksNotifier();
-});
+final marksProvider =
+    AsyncNotifierProvider<MarksNotifier, Map<String, List<Mark>>>(() {
+      return MarksNotifier();
+    });
 
 class MarksNotifier extends AsyncNotifier<Map<String, List<Mark>>> {
   @override
@@ -209,25 +226,29 @@ class MarksNotifier extends AsyncNotifier<Map<String, List<Mark>>> {
       await Future.delayed(const Duration(seconds: 1));
 
       // Données simulées
-      final marks = List.generate(12, (index) => Mark(
-        studentId: 'STU00${index + 1}',
-        studentName: 'Student ${index + 1}',
-        assessments: {
-          'Quiz 1': 15.0,
-          'Midterm': 18.0,
-          'Assignment 1': 17.5,
-        },
-        totalScore: 75.0 + (index % 20),
-      ));
+      final marks = List.generate(
+        12,
+        (index) => Mark(
+          studentId: 'STU00${index + 1}',
+          studentName: 'Student ${index + 1}',
+          assessments: {'Quiz 1': 15.0, 'Midterm': 18.0, 'Assignment 1': 17.5},
+          totalScore: 75.0 + (index % 20),
+        ),
+      );
 
       state = AsyncData<Map<String, List<Mark>>>({courseId: marks});
     } catch (e, stackTrace) {
       state = AsyncError<Map<String, List<Mark>>>(e, stackTrace);
-      print('Error fetching marks: $e');
+      // log('Error fetching marks: $e');
     }
   }
 
-  Future<void> updateMark(String courseId, String studentId, String assessment, double score) async {
+  Future<void> updateMark(
+    String courseId,
+    String studentId,
+    String assessment,
+    double score,
+  ) async {
     try {
       // TODO: Backend - PUT /api/teacher/courses/$courseId/marks
       await Future.delayed(const Duration(seconds: 1));
@@ -236,11 +257,15 @@ class MarksNotifier extends AsyncNotifier<Map<String, List<Mark>>> {
         if (data.containsKey(courseId)) {
           final updatedMarks = data[courseId]!.map((mark) {
             if (mark.studentId == studentId) {
-              final updatedAssessments = Map<String, double>.from(mark.assessments);
+              final updatedAssessments = Map<String, double>.from(
+                mark.assessments,
+              );
               updatedAssessments[assessment] = score;
 
               // Recalculer le total
-              final totalScore = updatedAssessments.values.reduce((a, b) => a + b);
+              final totalScore = updatedAssessments.values.reduce(
+                (a, b) => a + b,
+              );
 
               return Mark(
                 studentId: mark.studentId,
@@ -264,9 +289,10 @@ class MarksNotifier extends AsyncNotifier<Map<String, List<Mark>>> {
 }
 
 // ✅ CORRECTION : Pour les fichiers du teacher
-final teacherFilesProvider = AsyncNotifierProvider<TeacherFilesNotifier, List<TeacherFile>>(() {
-  return TeacherFilesNotifier();
-});
+final teacherFilesProvider =
+    AsyncNotifierProvider<TeacherFilesNotifier, List<TeacherFile>>(() {
+      return TeacherFilesNotifier();
+    });
 
 class TeacherFilesNotifier extends AsyncNotifier<List<TeacherFile>> {
   @override
@@ -274,7 +300,12 @@ class TeacherFilesNotifier extends AsyncNotifier<List<TeacherFile>> {
     return [];
   }
 
-  Future<void> uploadFile(String courseId, File file, String fileName, String fileType) async {
+  Future<void> uploadFile(
+    String courseId,
+    File file,
+    String fileName,
+    String fileType,
+  ) async {
     try {
       // TODO: Backend - POST /api/teacher/courses/$courseId/files/upload
       await Future.delayed(const Duration(seconds: 2));
@@ -300,14 +331,17 @@ class TeacherFilesNotifier extends AsyncNotifier<List<TeacherFile>> {
       // TODO: Backend - GET /api/teacher/courses/$courseId/files
       await Future.delayed(const Duration(seconds: 1));
 
-      final files = List.generate(5, (index) => TeacherFile(
-        id: index.toString(),
-        name: 'Lecture_${index + 1}.pdf',
-        url: 'url_$index',
-        type: 'lecture',
-        uploadedAt: DateTime.now().subtract(Duration(days: index)),
-        courseId: courseId,
-      ));
+      final files = List.generate(
+        5,
+        (index) => TeacherFile(
+          id: index.toString(),
+          name: 'Lecture_${index + 1}.pdf',
+          url: 'url_$index',
+          type: 'lecture',
+          uploadedAt: DateTime.now().subtract(Duration(days: index)),
+          courseId: courseId,
+        ),
+      );
 
       state = AsyncData<List<TeacherFile>>(files);
     } catch (e, stackTrace) {

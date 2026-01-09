@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:image_picker/image_picker.dart';
-import 'dart:io';
 import 'student_providers.dart';
 
 class StudentProfileTab extends ConsumerStatefulWidget {
@@ -48,7 +47,9 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
         address: _addressController.text.trim(),
       );
 
-      await ref.read(studentProfileProvider.notifier).updateProfile(updatedProfile);
+      await ref
+          .read(studentProfileProvider.notifier)
+          .updateProfile(updatedProfile);
 
       setState(() {
         _isEditing = false;
@@ -65,10 +66,7 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Error: $e'),
-            backgroundColor: Colors.red,
-          ),
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
         );
       }
     }
@@ -120,10 +118,15 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
                             radius: 50,
                             backgroundColor: Colors.cyan[100],
                             backgroundImage: profile.profileImage != null
-                                ? NetworkImage(profile.profileImage!) as ImageProvider
+                                ? NetworkImage(profile.profileImage!)
+                                      as ImageProvider
                                 : null,
                             child: profile.profileImage == null
-                                ? const Icon(Icons.person, size: 50, color: Colors.cyan)
+                                ? const Icon(
+                                    Icons.person,
+                                    size: 50,
+                                    color: Colors.cyan,
+                                  )
                                 : null,
                           ),
                           Positioned(
@@ -135,7 +138,11 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               child: IconButton(
-                                icon: const Icon(Icons.edit, color: Colors.white, size: 18),
+                                icon: const Icon(
+                                  Icons.edit,
+                                  color: Colors.white,
+                                  size: 18,
+                                ),
                                 onPressed: _pickImage,
                               ),
                             ),
@@ -144,19 +151,33 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
                       ),
                       const SizedBox(height: 20),
                       _buildInfoRow('Student ID', profile.studentId),
-                      _buildInfoRow('Name', _isEditing ? null : profile.name,
-                          controller: _nameController, isEditing: _isEditing),
+                      _buildInfoRow(
+                        'Name',
+                        _isEditing ? null : profile.name,
+                        controller: _nameController,
+                        isEditing: _isEditing,
+                      ),
                       _buildInfoRow('Email', profile.email),
                       _buildInfoRow('Program', profile.program),
                       _buildInfoRow('Group', profile.group),
                       _buildInfoRow('Semester', '${profile.semester}'),
-                      _buildInfoRow('Phone', _isEditing ? null : profile.phone,
-                          controller: _phoneController, isEditing: _isEditing),
-                      _buildInfoRow('Address', _isEditing ? null : profile.address,
-                          controller: _addressController, isEditing: _isEditing),
+                      _buildInfoRow(
+                        'Phone',
+                        _isEditing ? null : profile.phone,
+                        controller: _phoneController,
+                        isEditing: _isEditing,
+                      ),
+                      _buildInfoRow(
+                        'Address',
+                        _isEditing ? null : profile.address,
+                        controller: _addressController,
+                        isEditing: _isEditing,
+                      ),
                       if (profile.birthDate != null)
-                        _buildInfoRow('Birth Date',
-                            '${profile.birthDate!.day}/${profile.birthDate!.month}/${profile.birthDate!.year}'),
+                        _buildInfoRow(
+                          'Birth Date',
+                          '${profile.birthDate!.day}/${profile.birthDate!.month}/${profile.birthDate!.year}',
+                        ),
                     ],
                   ),
                 ),
@@ -195,15 +216,19 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
                         ],
                       ),
                       const SizedBox(height: 10),
-                      ...profile.emergencyContacts.map((contact) => ListTile(
-                        leading: Icon(Icons.emergency, color: Colors.red),
-                        title: Text(contact.name),
-                        subtitle: Text('${contact.relationship} - ${contact.phone}'),
-                        trailing: IconButton(
-                          icon: Icon(Icons.delete, color: Colors.red),
-                          onPressed: () {},
+                      ...profile.emergencyContacts.map(
+                        (contact) => ListTile(
+                          leading: Icon(Icons.emergency, color: Colors.red),
+                          title: Text(contact.name),
+                          subtitle: Text(
+                            '${contact.relationship} - ${contact.phone}',
+                          ),
+                          trailing: IconButton(
+                            icon: Icon(Icons.delete, color: Colors.red),
+                            onPressed: () {},
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),
@@ -287,8 +312,12 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
     );
   }
 
-  Widget _buildInfoRow(String label, String? value,
-      {TextEditingController? controller, bool isEditing = false}) {
+  Widget _buildInfoRow(
+    String label,
+    String? value, {
+    TextEditingController? controller,
+    bool isEditing = false,
+  }) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 8.0),
       child: Row(
@@ -308,21 +337,18 @@ class _StudentProfileTabState extends ConsumerState<StudentProfileTab> {
           Expanded(
             child: isEditing && controller != null
                 ? TextFormField(
-              controller: controller,
-              decoration: InputDecoration(
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(8),
-                ),
-                contentPadding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 8,
-                ),
-              ),
-            )
-                : Text(
-              value ?? '',
-              style: const TextStyle(fontSize: 16),
-            ),
+                    controller: controller,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 8,
+                      ),
+                    ),
+                  )
+                : Text(value ?? '', style: const TextStyle(fontSize: 16)),
           ),
         ],
       ),
