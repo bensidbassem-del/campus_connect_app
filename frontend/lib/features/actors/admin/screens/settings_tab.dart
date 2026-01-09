@@ -201,37 +201,3 @@ class _SettingsTabState extends State<SettingsTab> {
     // TODO: Backend - Check for app updates
   }
 }
-
-// Helper widget for bottom border
-class BottomBorder extends Decoration {
-  final Color color;
-  final double width;
-
-  const BottomBorder({required this.color, this.width = 1.0});
-
-  @override
-  BoxPainter createBoxPainter([VoidCallback? onChanged]) {
-    return _BottomBorderPainter(color, width);
-  }
-}
-
-class _BottomBorderPainter extends BoxPainter {
-  final Color color;
-  final double width;
-
-  _BottomBorderPainter(this.color, this.width);
-
-  @override
-  void paint(Canvas canvas, Offset offset, ImageConfiguration cfg) {
-    final paint = Paint()
-      ..color = color
-      ..strokeWidth = width
-      ..style = PaintingStyle.stroke;
-
-    final left = offset.dx;
-    final right = offset.dx + cfg.size!.width;
-    final bottom = offset.dy + cfg.size!.height;
-
-    canvas.drawLine(Offset(left, bottom), Offset(right, bottom), paint);
-  }
-}

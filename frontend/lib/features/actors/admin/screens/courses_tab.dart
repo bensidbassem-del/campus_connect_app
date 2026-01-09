@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:file_picker/file_picker.dart';
-import 'package:image_picker/image_picker.dart';
 
 // Modèles
 class Course {
@@ -18,12 +17,19 @@ class FileItem {
   final String category;
   final String url;
 
-  FileItem({required this.id, required this.name, required this.category, required this.url});
+  FileItem({
+    required this.id,
+    required this.name,
+    required this.category,
+    required this.url,
+  });
 }
 
-final coursesProvider = AsyncNotifierProvider<CoursesNotifier, List<Course>>(() {
-  return CoursesNotifier();
-});
+final coursesProvider = AsyncNotifierProvider<CoursesNotifier, List<Course>>(
+  () {
+    return CoursesNotifier();
+  },
+);
 
 class CoursesNotifier extends AsyncNotifier<List<Course>> {
   @override
@@ -206,15 +212,22 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                             'Recent Files:',
                             style: TextStyle(fontWeight: FontWeight.bold),
                           ),
-                          ...files.take(3).map((file) => ListTile(
-                            leading: Icon(_getCategoryIcon(file.category)),
-                            title: Text(file.name),
-                            subtitle: Text(file.category),
-                          )),
+                          ...files
+                              .take(3)
+                              .map(
+                                (file) => ListTile(
+                                  leading: Icon(
+                                    _getCategoryIcon(file.category),
+                                  ),
+                                  title: Text(file.name),
+                                  subtitle: Text(file.category),
+                                ),
+                              ),
                         ],
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (error, stackTrace) => Text('Error: $error'),
                   ),
                 ],
@@ -247,7 +260,10 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                         ),
                       ),
                       IconButton(
-                        icon: const Icon(Icons.add_circle_outline, color: Colors.cyan),
+                        icon: const Icon(
+                          Icons.add_circle_outline,
+                          color: Colors.cyan,
+                        ),
                         onPressed: _addNewCourse,
                       ),
                     ],
@@ -276,7 +292,10 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                                 color: Colors.cyan[100],
                                 borderRadius: BorderRadius.circular(8),
                               ),
-                              child: Icon(Icons.school, color: Colors.cyan[800]),
+                              child: Icon(
+                                Icons.school,
+                                color: Colors.cyan[800],
+                              ),
                             ),
                             title: Text(course.name),
                             subtitle: Text('Code: ${course.code}'),
@@ -288,7 +307,8 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                         },
                       );
                     },
-                    loading: () => const Center(child: CircularProgressIndicator()),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
                     error: (error, stackTrace) => Text('Error: $error'),
                   ),
                 ],
@@ -354,10 +374,7 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
       }
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -399,7 +416,8 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
           ElevatedButton(
             style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
             onPressed: () async {
-              if (_courseNameController.text.isEmpty || _courseCodeController.text.isEmpty) {
+              if (_courseNameController.text.isEmpty ||
+                  _courseCodeController.text.isEmpty) {
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
                     content: Text('Please fill all fields'),
@@ -410,10 +428,12 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
               }
 
               try {
-                await ref.read(coursesProvider.notifier).addCourse(
-                  _courseNameController.text,
-                  _courseCodeController.text,
-                );
+                await ref
+                    .read(coursesProvider.notifier)
+                    .addCourse(
+                      _courseNameController.text,
+                      _courseCodeController.text,
+                    );
 
                 Navigator.pop(context);
                 _courseNameController.clear();

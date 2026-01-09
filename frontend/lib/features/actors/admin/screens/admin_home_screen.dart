@@ -1,18 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../screens/DashboardTab.dart';
-import '../screens/CoursesTab.dart';
-import '../screens/SettingsTab.dart';
-import '../screens/UserManagementTab.dart';
-class Admin{
+import '../screens/dashboard_tab.dart';
+import '../screens/courses_tab.dart';
+import '../screens/settings_tab.dart';
+import '../screens/user_management_tab.dart';
+
+class Admin {
   final String id;
   final String name;
   final String email;
-  Admin({
-    required this.id,
-    required this.name,
-    required this.email,
-  });
+  Admin({required this.id, required this.name, required this.email});
 }
 
 class AdminHomeScreen extends ConsumerWidget {
@@ -53,10 +50,7 @@ class AdminHomeScreen extends ConsumerWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFE0F7FA),
-                Color(0xFFB2EBF2),
-              ],
+              colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
             ),
           ),
           child: const TabBarView(
@@ -71,5 +65,4 @@ class AdminHomeScreen extends ConsumerWidget {
       ),
     );
   }
-
 }

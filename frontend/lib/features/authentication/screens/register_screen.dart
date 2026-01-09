@@ -14,7 +14,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   final nameController = TextEditingController();
-  final bac_yearController = TextEditingController();
+  final bacYearController = TextEditingController();
   final specialtyController = TextEditingController();
   final emailController = TextEditingController();
   final passwordController = TextEditingController();
@@ -27,7 +27,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     if (nameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
-        bac_yearController.text.isEmpty ||
+        bacYearController.text.isEmpty ||
         specialtyController.text.isEmpty) {
       setState(() {
         errorMessage = 'Please fill in all required fields';
@@ -47,7 +47,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       // Prepare request body
       final Map<String, dynamic> requestBody = {
         'name': nameController.text,
-        'bac_year': bac_yearController.text,
+        'bac_year': bacYearController.text,
         'specialty': specialtyController.text,
         'email': emailController.text,
         'password': passwordController.text,
@@ -135,7 +135,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
               // BAC Year field
               TextField(
-                controller: bac_yearController,
+                controller: bacYearController,
                 decoration: const InputDecoration(
                   labelText: 'High School Graduation Year',
                   border: OutlineInputBorder(),
@@ -204,7 +204,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   void dispose() {
     // Clean up controllers
     nameController.dispose();
-    bac_yearController.dispose();
+    bacYearController.dispose();
     specialtyController.dispose();
     emailController.dispose();
     passwordController.dispose();
