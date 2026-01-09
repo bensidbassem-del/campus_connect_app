@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/auth_service.dart';
+
 import '../widgets/auth_gate.dart';
+import '../../../shared/services/auth_service_provider.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -19,24 +20,27 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> login() async {
     setState(() => loading = true);
 
-    // 🔴 MOCK LOGIN (replace with API later)
-    await Future.delayed(const Duration(seconds: 1));
-
-    await ref
+    final success = await ref
         .read(authServiceProvider)
-        .saveAuth(
-          token: 'fake-jwt-token',
-          role: 'student', // change to admin / teacher to test
+        .login(
+          username: emailController.text,
+          password: passwordController.text,
         );
 
     if (!mounted) return;
 
     setState(() => loading = false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const AuthGate()),
-    );
+    if (success) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AuthGate()),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text('Login failed')));
+    }
   }
 
   @override
@@ -55,7 +59,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Username'),
             ),
             const SizedBox(height: 12),
 

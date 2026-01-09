@@ -3,6 +3,7 @@
 .idea/
 *.swp
 *.swo
+*.iml
 
 # OS
 .DS_Store
@@ -28,3 +29,33 @@ db.sqlite2
 env/
 venv/
 ENV/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+pubspec.lock
+
+# Build Artifacts
+build/
+**/build/
+
+# Android
+**/android/local.properties
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/key.properties
+**/android/**/*.jks
+**/android/**/*.keystore
+
+# iOS
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*

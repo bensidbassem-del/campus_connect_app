@@ -1,9 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import '../services/auth_service.dart';
-import '../widgets/auth_gate.dart';
+
+import '../../../shared/services/auth_service_provider.dart';
 
 class RegisterScreen extends ConsumerStatefulWidget {
   const RegisterScreen({super.key});
@@ -41,56 +39,46 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
     });
 
     try {
-      // API endpoint - update with your actual backend URL
-      const String apiUrl = 'http://your-backend-url.com/api/register';
+      // Use the newly created register method from AuthServiceController
+      // Note: Splitting name into first/last is a bit hacky here,
+      // ideally UI should have separate fields or backend handles full name.
+      // For now, using name as firstName and empty lastName, or splitting by space.
+      final names = nameController.text.split(' ');
+      final firstName = names.isNotEmpty ? names.first : nameController.text;
+      final lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
 
-      // Prepare request body
-      final Map<String, dynamic> requestBody = {
-        'name': nameController.text,
-        'bac_year': bacYearController.text,
-        'specialty': specialtyController.text,
-        'email': emailController.text,
-        'password': passwordController.text,
-      };
+      final success = await ref
+          .read(authServiceProvider)
+          .register(
+            username: emailController.text.split('@')[0], // username from email
+            email: emailController.text,
+            password: passwordController.text,
+            firstName: firstName,
+            lastName: lastName,
+            studentId:
+                'STU-${DateTime.now().millisecondsSinceEpoch}', // generating ID for now
+          );
 
-      // Make HTTP POST request
-      final response = await http.post(
-        Uri.parse(apiUrl),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode(requestBody),
-      );
+      if (!mounted) return;
 
-      // Check response status
-      if (response.statusCode == 200 || response.statusCode == 201) {
-        // Parse response data
-        final responseData = jsonDecode(response.body);
-
-        // Assuming backend returns token and user data
-        final String token = responseData['token'];
-        final String role = responseData['user']['role'] ?? 'student';
-
-        // Save authentication data
-        await ref.read(authServiceProvider).saveAuth(token: token, role: role);
-
-        if (!mounted) return;
-
-        // Navigate to auth gate
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const AuthGate()),
+      if (success) {
+        // Navigate to login screen or direct login (if backend returns token)
+        // Since register flow usually requires login afterwards or returns to login:
+        Navigator.pop(context); // Go back to login
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Registration successful! Please login.'),
+          ),
         );
       } else {
-        // Handle error responses
-        final errorData = jsonDecode(response.body);
         setState(() {
           errorMessage =
-              errorData['message'] ?? 'Registration failed. Please try again.';
+              'Registration failed. Username or email might be taken.';
         });
       }
     } catch (e) {
-      // Handle network or other errors
       setState(() {
-        errorMessage = 'Network error: ${e.toString()}';
+        errorMessage = 'Error: ${e.toString()}';
       });
     } finally {
       if (mounted) setState(() => loading = false);

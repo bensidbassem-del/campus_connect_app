@@ -14,7 +14,7 @@ class Course {
   });
 }
 
-class User {
+class AppUser {
   final String id;
   final String name;
   final String email;
@@ -22,7 +22,7 @@ class User {
   final String? groupId;
   final String? avatarUrl;
 
-  User({
+  AppUser({
     required this.id,
     required this.name,
     required this.email,
@@ -30,6 +30,28 @@ class User {
     this.groupId,
     this.avatarUrl,
   });
+
+  factory AppUser.fromJson(Map<String, dynamic> json) {
+    return AppUser(
+      id: json['id']?.toString() ?? '',
+      name: json['name'] ?? '',
+      email: json['email'] ?? '',
+      role: json['role'] ?? 'student',
+      groupId: json['group_id'],
+      avatarUrl: json['avatar_url'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'role': role,
+      'group_id': groupId,
+      'avatar_url': avatarUrl,
+    };
+  }
 }
 
 class FileItem {
