@@ -40,7 +40,7 @@ class _SettingsTabState extends State<SettingsTab> {
                   subtitle: const Text(
                     'Receive notifications for new registrations',
                   ),
-                  activeColor: Colors.cyan,
+                  activeThumbColor: Colors.cyan,
                   value: _notificationsEnabled,
                   onChanged: (value) =>
                       setState(() => _notificationsEnabled = value),
@@ -50,7 +50,7 @@ class _SettingsTabState extends State<SettingsTab> {
                   subtitle: const Text(
                     'Automatically approve student registrations',
                   ),
-                  activeColor: Colors.cyan,
+                  activeThumbColor: Colors.cyan,
                   value: _autoApproveEnabled,
                   onChanged: (value) =>
                       setState(() => _autoApproveEnabled = value),

@@ -3,7 +3,59 @@
 .idea/
 *.swp
 *.swo
+*.iml
 
 # OS
 .DS_Store
 Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Sqlite
+db.sqlite3
+db.sqlite2
+*.sqlite3
+
+# Migrations
+**/migrations/*
+!**/migrations/__init__.py
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Flutter / Dart
+.dart_tool/
+.packages
+.pub/
+.pub-cache/
+pubspec.lock
+
+# Build Artifacts
+build/
+**/build/
+
+# Android
+**/android/local.properties
+**/android/.gradle/
+**/android/captures/
+**/android/gradlew
+**/android/gradlew.bat
+**/android/key.properties
+**/android/**/*.jks
+**/android/**/*.keystore
+
+# iOS
+**/ios/Flutter/Generated.xcconfig
+**/ios/Flutter/app.flx
+**/ios/Flutter/app.zip
+**/ios/Flutter/flutter_assets/
+**/ios/Flutter/flutter_export_environment.sh
+**/ios/ServiceDefinitions.json
+**/ios/Runner/GeneratedPluginRegistrant.*

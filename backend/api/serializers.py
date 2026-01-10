@@ -72,7 +72,7 @@ class RegisterSerializer(serializers.ModelSerializer):
         fields = [
             'username', 'email', 'password', 'password2',
             'first_name', 'last_name', 'student_id',
-            'birth_date', 'phone', 'address'
+            'birth_date', 'phone', 'address', 'role'
         ]
     
     def validate(self, data):
@@ -88,6 +88,9 @@ class RegisterSerializer(serializers.ModelSerializer):
         """
         validated_data.pop('password2')  # Remove password2, not needed in model
         
+        # Get role from validated_data, default to STUDENT if not provided
+        role = validated_data.pop('role', User.STUDENT)
+        
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
@@ -98,7 +101,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             birth_date=validated_data.get('birth_date'),
             phone=validated_data.get('phone', ''),
             address=validated_data.get('address', ''),
-            role=User.STUDENT,  # New registrations are always students
+            role=role,
             is_approved=False  # Must be approved by admin
         )
         return user

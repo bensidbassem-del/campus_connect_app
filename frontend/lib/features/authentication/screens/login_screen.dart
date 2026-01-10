@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import '../services/auth_service.dart';
+
 import '../widgets/auth_gate.dart';
+import '../../../shared/services/auth_service_provider.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -19,24 +21,35 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> login() async {
     setState(() => loading = true);
 
-    // 🔴 MOCK LOGIN (replace with API later)
-    await Future.delayed(const Duration(seconds: 1));
-
-    await ref
+    final error = await ref
         .read(authServiceProvider)
-        .saveAuth(
-          token: 'fake-jwt-token',
-          role: 'student', // change to admin / teacher to test
+        .login(
+          username: emailController.text,
+          password: passwordController.text,
         );
 
     if (!mounted) return;
 
     setState(() => loading = false);
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const AuthGate()),
-    );
+    if (error == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (_) => const AuthGate()),
+      );
+    } else {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text(error)));
+    }
   }
 
   @override
@@ -55,7 +68,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
             TextField(
               controller: emailController,
-              decoration: const InputDecoration(labelText: 'Email'),
+              decoration: const InputDecoration(labelText: 'Username'),
             ),
             const SizedBox(height: 12),
 
@@ -71,6 +84,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: loading
                   ? const CircularProgressIndicator()
                   : const Text('Login'),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                );
+              },
+              child: const Text('Don\'t have an account? Register'),
             ),
           ],
         ),

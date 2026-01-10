@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-import '../services/auth_service.dart';
 import '../screens/login_screen.dart';
+import '../../../shared/services/auth_service_provider.dart';
+import '../../../shared/providers/auth_provider.dart';
 
 import '../../actors/admin/screens/admin_home_screen.dart';
 import '../../actors/teacher/screens/teacher_home_screen.dart';
@@ -13,30 +14,32 @@ class AuthGate extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final auth = ref.watch(authServiceProvider);
+    final authController = ref.read(authServiceProvider);
+    final user = ref.watch(authProvider);
 
     return FutureBuilder(
-      future: auth.loadFromStorage(),
+      future: authController.loadFromStorage(),
       builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+        if (snapshot.connectionState == ConnectionState.waiting &&
+            user == null) {
           return const Scaffold(
             body: Center(child: CircularProgressIndicator()),
           );
         }
 
-        if (!auth.isLoggedIn) {
+        if (user == null) {
           return const LoginScreen();
         }
 
-        switch (auth.userRole) {
-          case 'admin':
+        switch (user.role) {
+          case 'ADMIN':
             return AdminHomeScreen();
-          case 'teacher':
+          case 'TEACHER':
             return TeacherScreen();
-          case 'student':
+          case 'STUDENT':
             return StudentScreen();
           default:
-            return LoginScreen();
+            return const LoginScreen();
         }
       },
     );

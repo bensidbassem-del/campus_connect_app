@@ -22,10 +22,10 @@ class _StudentScheduleTabState extends ConsumerState<StudentScheduleTab> {
       data: (schedule) {
         final List<ScheduleEvent> displayedSchedule = _showTodayOnly
             ? schedule.where((event) {
-          final today = DateTime.now();
-          final dayName = DateFormat('EEEE').format(today);
-          return event.day == dayName;
-        }).toList()
+                final today = DateTime.now();
+                final dayName = DateFormat('EEEE').format(today);
+                return event.day == dayName;
+              }).toList()
             : schedule;
 
         final todayEvents = schedule.where((event) {
@@ -36,20 +36,23 @@ class _StudentScheduleTabState extends ConsumerState<StudentScheduleTab> {
 
         final now = DateTime.now();
         final currentEvent = todayEvents.firstWhere(
-              (event) => now.isAfter(event.startTime) && now.isBefore(event.endTime),
-          orElse: () => todayEvents.isNotEmpty && now.isBefore(todayEvents.first.startTime)
+          (event) =>
+              now.isAfter(event.startTime) && now.isBefore(event.endTime),
+          orElse: () =>
+              todayEvents.isNotEmpty &&
+                  now.isBefore(todayEvents.first.startTime)
               ? todayEvents.first
               : ScheduleEvent(
-            id: '',
-            courseName: '',
-            courseCode: '',
-            teacher: '',
-            room: '',
-            startTime: now,
-            endTime: now,
-            day: '',
-            type: '',
-          ),
+                  id: '',
+                  courseName: '',
+                  courseCode: '',
+                  teacher: '',
+                  room: '',
+                  startTime: now,
+                  endTime: now,
+                  day: '',
+                  type: '',
+                ),
         );
 
         return SingleChildScrollView(
@@ -139,7 +142,7 @@ class _StudentScheduleTabState extends ConsumerState<StudentScheduleTab> {
                       ),
                       Switch(
                         value: _showTodayOnly,
-                        activeColor: Colors.cyan,
+                        activeThumbColor: Colors.cyan,
                         onChanged: (value) {
                           setState(() {
                             _showTodayOnly = value;
@@ -253,8 +256,10 @@ class _StudentScheduleTabState extends ConsumerState<StudentScheduleTab> {
               attendanceAsync.when(
                 data: (attendance) {
                   final totalPercentage = attendance.isNotEmpty
-                      ? attendance.map((a) => a.percentage).reduce((a, b) => a + b) /
-                      attendance.length
+                      ? attendance
+                                .map((a) => a.percentage)
+                                .reduce((a, b) => a + b) /
+                            attendance.length
                       : 0.0;
 
                   return Card(
@@ -305,33 +310,41 @@ class _StudentScheduleTabState extends ConsumerState<StudentScheduleTab> {
                             ],
                           ),
                           const SizedBox(height: 16),
-                          ...attendance.take(3).map((record) => ListTile(
-                            leading: Container(
-                              width: 8,
-                              height: 8,
-                              decoration: BoxDecoration(
-                                color: _getAttendanceColor(record.percentage),
-                                shape: BoxShape.circle,
+                          ...attendance
+                              .take(3)
+                              .map(
+                                (record) => ListTile(
+                                  leading: Container(
+                                    width: 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: _getAttendanceColor(
+                                        record.percentage,
+                                      ),
+                                      shape: BoxShape.circle,
+                                    ),
+                                  ),
+                                  title: Text(record.courseName),
+                                  subtitle: Text(
+                                    '${record.present}/${record.total} classes',
+                                  ),
+                                  trailing: Text(
+                                    '${record.percentage.toStringAsFixed(1)}%',
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      color: _getAttendanceColor(
+                                        record.percentage,
+                                      ),
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
-                            title: Text(record.courseName),
-                            subtitle: Text(
-                                '${record.present}/${record.total} classes'),
-                            trailing: Text(
-                              '${record.percentage.toStringAsFixed(1)}%',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: _getAttendanceColor(record.percentage),
-                              ),
-                            ),
-                          )),
                         ],
                       ),
                     ),
                   );
                 },
-                loading: () => const Center(
-                    child: CircularProgressIndicator()),
+                loading: () => const Center(child: CircularProgressIndicator()),
                 error: (error, stackTrace) => const SizedBox(),
               ),
             ],

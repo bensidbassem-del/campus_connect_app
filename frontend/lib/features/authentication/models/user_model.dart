@@ -14,7 +14,7 @@ class Course {
   });
 }
 
-class User {
+class AppUser {
   final String id;
   final String name;
   final String email;
@@ -22,7 +22,7 @@ class User {
   final String? groupId;
   final String? avatarUrl;
 
-  User({
+  AppUser({
     required this.id,
     required this.name,
     required this.email,
@@ -30,6 +30,37 @@ class User {
     this.groupId,
     this.avatarUrl,
   });
+
+  factory AppUser.fromJson(Map<String, dynamic> json) {
+    // Backend returns first_name and last_name, combine them for name
+    final firstName = json['first_name'] ?? '';
+    final lastName = json['last_name'] ?? '';
+    final combinedName =
+        json['name'] ??
+        (firstName.isEmpty && lastName.isEmpty
+            ? json['username'] ?? ''
+            : '$firstName $lastName'.trim());
+
+    return AppUser(
+      id: json['id']?.toString() ?? '',
+      name: combinedName,
+      email: json['email'] ?? '',
+      role: json['role'] ?? 'STUDENT',
+      groupId: json['group_id']?.toString(),
+      avatarUrl: json['profile_picture'], // Django uses profile_picture
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'id': id,
+      'name': name,
+      'email': email,
+      'role': role,
+      'group_id': groupId,
+      'avatar_url': avatarUrl,
+    };
+  }
 }
 
 class FileItem {

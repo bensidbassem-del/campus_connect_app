@@ -1,14 +1,3 @@
-"""
-Campus Connect - URL Configuration
-Maps API endpoints to view functions.
-
-Flutter calls these URLs with the base: http://your-server/api/
-
-Example:
-Flutter's auth_service.dart calls: http://localhost:8000/api/auth/login/
-Which maps to: LoginView
-"""
-
 from django.urls import path
 from rest_framework_simplejwt.views import TokenRefreshView
 
