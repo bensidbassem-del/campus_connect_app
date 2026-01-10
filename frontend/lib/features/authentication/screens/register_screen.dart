@@ -11,6 +11,7 @@ class RegisterScreen extends ConsumerStatefulWidget {
 }
 
 class _RegisterScreenState extends ConsumerState<RegisterScreen> {
+  final usernameController = TextEditingController();
   final nameController = TextEditingController();
   final bacYearController = TextEditingController();
   final specialtyController = TextEditingController();
@@ -19,10 +20,12 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
 
   bool loading = false;
   String errorMessage = '';
+  String selectedRole = 'STUDENT';
 
   Future<void> register() async {
     // Input validation
     if (nameController.text.isEmpty ||
+        usernameController.text.isEmpty ||
         emailController.text.isEmpty ||
         passwordController.text.isEmpty ||
         bacYearController.text.isEmpty ||
@@ -47,21 +50,22 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
       final firstName = names.isNotEmpty ? names.first : nameController.text;
       final lastName = names.length > 1 ? names.sublist(1).join(' ') : '';
 
-      final success = await ref
+      final error = await ref
           .read(authServiceProvider)
           .register(
-            username: emailController.text.split('@')[0], // username from email
+            username: usernameController.text, // username from input
             email: emailController.text,
             password: passwordController.text,
             firstName: firstName,
             lastName: lastName,
             studentId:
                 'STU-${DateTime.now().millisecondsSinceEpoch}', // generating ID for now
+            role: selectedRole,
           );
 
       if (!mounted) return;
 
-      if (success) {
+      if (error == null) {
         // Navigate to login screen or direct login (if backend returns token)
         // Since register flow usually requires login afterwards or returns to login:
         Navigator.pop(context); // Go back to login
@@ -72,8 +76,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
         );
       } else {
         setState(() {
-          errorMessage =
-              'Registration failed. Username or email might be taken.';
+          errorMessage = error;
         });
       }
     } catch (e) {
@@ -110,6 +113,33 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                     style: const TextStyle(color: Colors.red, fontSize: 14),
                   ),
                 ),
+
+              // Role selection
+              DropdownButtonFormField<String>(
+                value: selectedRole,
+                decoration: const InputDecoration(
+                  labelText: 'I am a...',
+                  border: OutlineInputBorder(),
+                ),
+                items: const [
+                  DropdownMenuItem(value: 'STUDENT', child: Text('Student')),
+                  DropdownMenuItem(value: 'TEACHER', child: Text('Teacher')),
+                ],
+                onChanged: (val) {
+                  if (val != null) setState(() => selectedRole = val);
+                },
+              ),
+              const SizedBox(height: 12),
+
+              // Username field
+              TextField(
+                controller: usernameController,
+                decoration: const InputDecoration(
+                  labelText: 'Username *',
+                  border: OutlineInputBorder(),
+                ),
+              ),
+              const SizedBox(height: 12),
 
               // Name field
               TextField(
@@ -191,6 +221,7 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
   @override
   void dispose() {
     // Clean up controllers
+    usernameController.dispose();
     nameController.dispose();
     bacYearController.dispose();
     specialtyController.dispose();

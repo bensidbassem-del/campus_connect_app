@@ -19,12 +19,15 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
     return marksAsync.when(
       data: (marks) {
         final selectedCourse = _selectedCourseId != null
-            ? marks.firstWhere((m) => m.courseId == _selectedCourseId,
-            orElse: () => marks.first)
+            ? marks.firstWhere(
+                (m) => m.courseId == _selectedCourseId,
+                orElse: () => marks.first,
+              )
             : marks.first;
 
         final overallAverage = marks.isNotEmpty
-            ? marks.map((m) => m.totalScore).reduce((a, b) => a + b) / marks.length
+            ? marks.map((m) => m.totalScore).reduce((a, b) => a + b) /
+                  marks.length
             : 0.0;
 
         return SingleChildScrollView(
@@ -58,9 +61,7 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                               ),
                               Text(
                                 'Semester 3',
-                                style: TextStyle(
-                                  color: Colors.grey[600],
-                                ),
+                                style: TextStyle(color: Colors.grey[600]),
                               ),
                             ],
                           ),
@@ -148,7 +149,7 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
-                        value: _selectedCourseId ?? marks.first.courseId,
+                        initialValue: _selectedCourseId ?? marks.first.courseId,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),
@@ -161,7 +162,9 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                         items: marks.map((mark) {
                           return DropdownMenuItem(
                             value: mark.courseId,
-                            child: Text('${mark.courseName} (${mark.courseCode})'),
+                            child: Text(
+                              '${mark.courseName} (${mark.courseCode})',
+                            ),
                           );
                         }).toList(),
                         onChanged: (value) {
@@ -220,9 +223,7 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                       ),
                       Text(
                         selectedCourse.courseCode,
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                        ),
+                        style: TextStyle(color: Colors.grey[600]),
                       ),
                       const SizedBox(height: 20),
 
@@ -243,7 +244,9 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                                 Text(
                                   '${selectedCourse.totalScore.toStringAsFixed(1)}%',
                                   style: TextStyle(
-                                    color: _getGradeColor(selectedCourse.totalScore),
+                                    color: _getGradeColor(
+                                      selectedCourse.totalScore,
+                                    ),
                                     fontSize: 28,
                                     fontWeight: FontWeight.bold,
                                   ),
@@ -351,7 +354,9 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                             Text(
                               '${selectedCourse.totalScore.toStringAsFixed(1)}/100',
                               style: TextStyle(
-                                color: _getGradeColor(selectedCourse.totalScore),
+                                color: _getGradeColor(
+                                  selectedCourse.totalScore,
+                                ),
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
@@ -386,43 +391,45 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                         ),
                       ),
                       const SizedBox(height: 12),
-                      ...marks.map((mark) => ListTile(
-                        leading: Container(
-                          width: 40,
-                          height: 40,
-                          decoration: BoxDecoration(
-                            color: _getGradeColor(mark.totalScore),
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          child: Center(
-                            child: Text(
-                              mark.grade,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
+                      ...marks.map(
+                        (mark) => ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: _getGradeColor(mark.totalScore),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Center(
+                              child: Text(
+                                mark.grade,
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                             ),
                           ),
-                        ),
-                        title: Text(mark.courseName),
-                        subtitle: Text(mark.courseCode),
-                        trailing: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '${mark.totalScore.toStringAsFixed(1)}%',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: _getGradeColor(mark.totalScore),
+                          title: Text(mark.courseName),
+                          subtitle: Text(mark.courseCode),
+                          trailing: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text(
+                                '${mark.totalScore.toStringAsFixed(1)}%',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: _getGradeColor(mark.totalScore),
+                                ),
                               ),
-                            ),
-                            Text(
-                              'Rank #${mark.rank}',
-                              style: const TextStyle(fontSize: 12),
-                            ),
-                          ],
+                              Text(
+                                'Rank #${mark.rank}',
+                                style: const TextStyle(fontSize: 12),
+                              ),
+                            ],
+                          ),
                         ),
-                      )),
+                      ),
                     ],
                   ),
                 ),

@@ -1,14 +1,26 @@
-import 'package:http/http.dart' as http;
+import 'dart:io';
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiClient {
-  // Change this to your Django server URL
-  static const String baseUrl = 'http://localhost:8000/api';
+  static String get baseUrl {
+    if (kIsWeb) {
+      return 'http://localhost:8000/api';
+    } else if (Platform.isAndroid) {
+      // 10.0.2.2 is the special IP that points to the host computer's localhost
+      return 'http://10.0.2.2:8000/api';
+    } else {
+      return 'http://localhost:8000/api';
+    }
+  }
 
-  // For Android emulator, use: http://10.0.2.2:8000/api
-  // For iOS simulator, use: http://localhost:8000/api
-  // For physical device, use your computer's IP: http://192.168.1.100:8000/api
+  // NOTE: If using a PHYSICAL device, you must:
+  // 1. Connect both phone and computer to the same Wi-Fi
+  // 2. Change the IP below to your computer's local IP (e.g., 192.168.1.5)
+  // 3. Run Django with: py manage.py runserver 0.0.0.0:8000
+  // static const String baseUrl = 'http://192.168.1.5:8000/api';
 
   // Get stored JWT token
   Future<String?> _getToken() async {
@@ -17,8 +29,8 @@ class ApiClient {
   }
 
   // GET request
-  Future<http.Response> get(String endpoint) async {
-    final token = await _getToken();
+  Future<http.Response> get(String endpoint, {bool includeToken = true}) async {
+    final token = includeToken ? await _getToken() : null;
 
     return await http.get(
       Uri.parse('$baseUrl$endpoint'),
@@ -30,8 +42,12 @@ class ApiClient {
   }
 
   // POST request
-  Future<http.Response> post(String endpoint, Map<String, dynamic> data) async {
-    final token = await _getToken();
+  Future<http.Response> post(
+    String endpoint,
+    Map<String, dynamic> data, {
+    bool includeToken = true,
+  }) async {
+    final token = includeToken ? await _getToken() : null;
 
     return await http.post(
       Uri.parse('$baseUrl$endpoint'),
@@ -44,8 +60,12 @@ class ApiClient {
   }
 
   // PUT request
-  Future<http.Response> put(String endpoint, Map<String, dynamic> data) async {
-    final token = await _getToken();
+  Future<http.Response> put(
+    String endpoint,
+    Map<String, dynamic> data, {
+    bool includeToken = true,
+  }) async {
+    final token = includeToken ? await _getToken() : null;
 
     return await http.put(
       Uri.parse('$baseUrl$endpoint'),
@@ -58,8 +78,11 @@ class ApiClient {
   }
 
   // DELETE request
-  Future<http.Response> delete(String endpoint) async {
-    final token = await _getToken();
+  Future<http.Response> delete(
+    String endpoint, {
+    bool includeToken = true,
+  }) async {
+    final token = includeToken ? await _getToken() : null;
 
     return await http.delete(
       Uri.parse('$baseUrl$endpoint'),

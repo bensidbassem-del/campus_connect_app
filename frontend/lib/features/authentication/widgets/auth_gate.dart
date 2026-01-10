@@ -32,14 +32,14 @@ class AuthGate extends ConsumerWidget {
         }
 
         switch (user.role) {
-          case 'admin':
+          case 'ADMIN':
             return AdminHomeScreen();
-          case 'teacher':
+          case 'TEACHER':
             return TeacherScreen();
-          case 'student':
+          case 'STUDENT':
             return StudentScreen();
           default:
-            return LoginScreen();
+            return const LoginScreen();
         }
       },
     );

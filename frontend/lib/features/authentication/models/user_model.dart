@@ -32,13 +32,22 @@ class AppUser {
   });
 
   factory AppUser.fromJson(Map<String, dynamic> json) {
+    // Backend returns first_name and last_name, combine them for name
+    final firstName = json['first_name'] ?? '';
+    final lastName = json['last_name'] ?? '';
+    final combinedName =
+        json['name'] ??
+        (firstName.isEmpty && lastName.isEmpty
+            ? json['username'] ?? ''
+            : '$firstName $lastName'.trim());
+
     return AppUser(
       id: json['id']?.toString() ?? '',
-      name: json['name'] ?? '',
+      name: combinedName,
       email: json['email'] ?? '',
-      role: json['role'] ?? 'student',
-      groupId: json['group_id'],
-      avatarUrl: json['avatar_url'],
+      role: json['role'] ?? 'STUDENT',
+      groupId: json['group_id']?.toString(),
+      avatarUrl: json['profile_picture'], // Django uses profile_picture
     );
   }
 

@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/auth_gate.dart';
 import '../../../shared/services/auth_service_provider.dart';
+import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
   const LoginScreen({super.key});
@@ -20,7 +21,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
   Future<void> login() async {
     setState(() => loading = true);
 
-    final success = await ref
+    final error = await ref
         .read(authServiceProvider)
         .login(
           username: emailController.text,
@@ -31,7 +32,15 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
     setState(() => loading = false);
 
-    if (success) {
+    if (error == null) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Login successful!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+      }
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (_) => const AuthGate()),
@@ -39,7 +48,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     } else {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text('Login failed')));
+      ).showSnackBar(SnackBar(content: Text(error)));
     }
   }
 
@@ -75,6 +84,16 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
               child: loading
                   ? const CircularProgressIndicator()
                   : const Text('Login'),
+            ),
+            const SizedBox(height: 16),
+            TextButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => const RegisterScreen()),
+                );
+              },
+              child: const Text('Don\'t have an account? Register'),
             ),
           ],
         ),
