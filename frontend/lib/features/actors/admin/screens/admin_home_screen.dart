@@ -6,71 +6,56 @@ import '../screens/settings_tab.dart';
 import '../screens/user_management_tab.dart';
 import '../../../../shared/services/auth_service.dart';
 
-class Admin {
-  final String id;
-  final String name;
-  final String email;
-  Admin({required this.id, required this.name, required this.email});
-}
-
 class AdminHomeScreen extends ConsumerWidget {
   const AdminHomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    const primaryBlue = Color(0xFF0066FF);
+
     return DefaultTabController(
       length: 4,
       child: Scaffold(
+        backgroundColor: Colors.white,
         appBar: AppBar(
+          backgroundColor: Colors.white,
+          elevation: 0,
           title: const Text(
             'Campus Connect Admin',
             style: TextStyle(
-              fontSize: 20,
-              fontWeight: FontWeight.bold,
-              color: Colors.white,
+              fontSize: 18,
+              fontWeight: FontWeight.w600,
+              color: Colors.black,
             ),
           ),
-          backgroundColor: Colors.cyan[800],
-          foregroundColor: Colors.white,
-          elevation: 4,
           actions: [
             IconButton(
-              icon: const Icon(Icons.logout),
+              icon: const Icon(Icons.logout_outlined, color: Colors.black),
               onPressed: () {
                 ref.read(authServiceProvider).logout();
               },
-              tooltip: 'Logout',
             ),
           ],
-          bottom: TabBar(
-            labelColor: Colors.cyanAccent[400],
-            unselectedLabelColor: Colors.grey[300],
-            indicatorColor: Colors.cyanAccent[400],
-            indicatorWeight: 3,
-            tabs: const [
-              Tab(icon: Icon(Icons.folder), text: 'Courses'),
-              Tab(icon: Icon(Icons.dashboard), text: 'Dashboard'),
-              Tab(icon: Icon(Icons.manage_accounts), text: 'Users'),
-              Tab(icon: Icon(Icons.settings), text: 'Settings'),
+          bottom: const TabBar(
+            labelColor: primaryBlue,
+            unselectedLabelColor: Colors.grey,
+            indicatorColor: primaryBlue,
+            indicatorSize: TabBarIndicatorSize.label,
+            tabs: [
+              Tab(text: 'Courses'),
+              Tab(text: 'Dashboard'),
+              Tab(text: 'Users'),
+              Tab(text: 'Settings'),
             ],
           ),
         ),
-        body: Container(
-          decoration: const BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
-            ),
-          ),
-          child: const TabBarView(
-            children: [
-              CoursesTab(),
-              DashboardTab(),
-              UserManagementTab(),
-              SettingsTab(),
-            ],
-          ),
+        body: const TabBarView(
+          children: [
+            CoursesTab(),
+            DashboardTab(),
+            UserManagementTab(),
+            SettingsTab(),
+          ],
         ),
       ),
     );

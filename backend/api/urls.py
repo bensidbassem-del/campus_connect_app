@@ -35,11 +35,13 @@ urlpatterns = [
     # GET /api/admin/pending-students/ - List students awaiting approval
     
     path('admin/approve-student/<int:pk>/', views.ApproveStudentView.as_view(), name='approve-student'),
-    # POST /api/admin/approve-student/{id}/ - Approve student registration
+    
+    path('admin/reject-student/<int:pk>/', views.RejectStudentView.as_view(), name='reject-student'),
+    # POST /api/admin/reject-student/{id}/ - Reject student registration
     
     path('admin/students/', views.StudentListView.as_view(), name='student-list'),
-    # GET /api/admin/students/ - List all students
-    # Query params: ?approved=true or ?approved=false
+    # GET /api/admin/students/ - List all students (v2: with search/filter)
+    # Query params: ?is_approved=true, ?program=CS, ?search=John
     
     path('admin/students/<int:pk>/', views.DeleteStudentView.as_view(), name='delete-student'),
     # DELETE /api/admin/students/{id}/ - Delete student
@@ -96,6 +98,12 @@ urlpatterns = [
     # DELETE /api/groups/{id}/ - Delete group (admin only)
     
     
+    # ========================================================================
+    # ASSIGNMENT ENDPOINTS
+    # ========================================================================
+    path('admin/assignments/', views.CourseAssignmentListCreateView.as_view(), name='assignment-list'),
+    path('admin/assignments/<int:pk>/', views.CourseAssignmentDetailView.as_view(), name='assignment-detail'),
+
     # ========================================================================
     # GRADE ENDPOINTS
     # ========================================================================
@@ -158,4 +166,11 @@ urlpatterns = [
     
     path('timetables/my-timetable/', views.StudentTimetableView.as_view(), name='my-timetable'),
     # GET /api/timetables/my-timetable/ - Current student's group timetable
+
+    # ========================================================================
+    # INTERACTION ENDPOINTS (Messages & Notifications)
+    # ========================================================================
+    path('notifications/', views.NotificationListView.as_view(), name='notifications'),
+    path('notifications/<int:pk>/read/', views.NotificationMarkReadView.as_view(), name='notification-mark-read'),
+    path('messages/', views.MessageListCreateView.as_view(), name='messages'),
 ]
