@@ -69,7 +69,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
       state = AsyncData<List<User>>(users);
     } catch (e, stackTrace) {
       state = AsyncError<List<User>>(e, stackTrace);
-      print('Error fetching users: $e');
+      debugPrint('Error fetching users: $e');
     }
   }
 
@@ -232,10 +232,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                       const SizedBox(height: 16),
                       Text(
                         'No users found',
-                        style: TextStyle(
-                          color: Colors.grey[600],
-                          fontSize: 16,
-                        ),
+                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
                       ),
                     ],
                   ),
@@ -304,8 +301,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                           ),
                           IconButton(
                             icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () =>
-                                _deleteUser(user.id, user.name),
+                            onPressed: () => _deleteUser(user.id, user.name),
                           ),
                         ],
                       ),
@@ -314,25 +310,16 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                 },
               );
             },
-            loading: () => const Center(
-              child: CircularProgressIndicator(),
-            ),
+            loading: () => const Center(child: CircularProgressIndicator()),
             error: (error, stackTrace) => Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const Icon(
-                    Icons.error_outline,
-                    color: Colors.red,
-                    size: 50,
-                  ),
+                  const Icon(Icons.error_outline, color: Colors.red, size: 50),
                   const SizedBox(height: 16),
                   Text(
                     'Error loading users',
-                    style: TextStyle(
-                      color: Colors.red[700],
-                      fontSize: 16,
-                    ),
+                    style: TextStyle(color: Colors.red[700], fontSize: 16),
                   ),
                   const SizedBox(height: 8),
                   Text(
@@ -390,6 +377,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
   void _approveUser(String userId) async {
     try {
       await ref.read(usersProvider.notifier).approveRegistration(userId);
+      if (!mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('User approved successfully'),
@@ -398,10 +386,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       );
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Error: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
       );
     }
   }
@@ -440,10 +425,10 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
             style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
             onPressed: () async {
               try {
-                await ref.read(usersProvider.notifier).assignGroup(
-                  user.id,
-                  groupController.text.trim(),
-                );
+                await ref
+                    .read(usersProvider.notifier)
+                    .assignGroup(user.id, groupController.text.trim());
+                if (!context.mounted) return;
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   const SnackBar(
@@ -483,6 +468,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
             onPressed: () async {
               try {
                 await ref.read(usersProvider.notifier).deleteUser(userId);
+                if (!context.mounted) return;
                 Navigator.pop(context);
                 ScaffoldMessenger.of(context).showSnackBar(
                   SnackBar(

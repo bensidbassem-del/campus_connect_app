@@ -342,6 +342,7 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
       );
 
       if (result != null && result.files.isNotEmpty) {
+        if (!mounted) return;
         PlatformFile file = result.files.first;
 
         // Afficher un indicateur de chargement
@@ -362,6 +363,8 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
         await ref.read(filesProvider.notifier).uploadFile(file, category);
 
         // Cacher le snackbar
+        // Cacher le snackbar
+        if (!mounted) return;
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
 
         // Afficher un message de succès
@@ -373,9 +376,11 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
         );
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
-      );
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+        );
+      }
     }
   }
 
@@ -435,6 +440,7 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                       _courseCodeController.text,
                     );
 
+                if (!mounted) return;
                 Navigator.pop(context);
                 _courseNameController.clear();
                 _courseCodeController.clear();
@@ -446,12 +452,14 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                   ),
                 );
               } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
+                if (mounted) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Error: $e'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                }
               }
             },
             child: const Text('Create', style: TextStyle(color: Colors.white)),

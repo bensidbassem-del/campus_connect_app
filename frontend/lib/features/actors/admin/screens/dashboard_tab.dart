@@ -41,7 +41,7 @@ class UsersNotifier extends AsyncNotifier<List<User>> {
       state = AsyncData<List<User>>(users);
     } catch (e, stackTrace) {
       state = AsyncError<List<User>>(e, stackTrace);
-      print('Error fetching users: $e');
+      debugPrint('Error fetching users: $e');
     }
   }
 
@@ -288,7 +288,7 @@ class DashboardTab extends ConsumerWidget {
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: color.withOpacity(0.1),
+                color: color.withValues(alpha: 0.1),
                 borderRadius: BorderRadius.circular(8),
               ),
               child: Icon(icon, color: color, size: 32),
@@ -320,6 +320,7 @@ class DashboardTab extends ConsumerWidget {
   ) async {
     try {
       await ref.read(usersProvider.notifier).approveRegistration(userId);
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('Registration approved'),
@@ -340,6 +341,7 @@ class DashboardTab extends ConsumerWidget {
   ) async {
     try {
       await ref.read(usersProvider.notifier).deleteUser(userId);
+      if (!context.mounted) return;
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
           content: Text('User deleted'),

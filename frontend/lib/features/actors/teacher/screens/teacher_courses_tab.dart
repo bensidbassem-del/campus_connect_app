@@ -73,7 +73,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
                               color: Colors.cyan[800],
                             ),
                           ),
-                          initialValue: _selectedCourseId,
+                          value: _selectedCourseId,
                           items: courses.map((course) {
                             return DropdownMenuItem(
                               value: course.id,
@@ -304,7 +304,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
   Future<void> _uploadFile(String courseId) async {
     showModalBottomSheet(
       context: context,
-      builder: (context) => Container(
+      builder: (sheetContext) => Container(
         padding: const EdgeInsets.all(16),
         child: Column(
           mainAxisSize: MainAxisSize.min,
@@ -313,7 +313,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
               leading: Icon(Icons.photo, color: Colors.cyan[800]),
               title: const Text('Upload from Gallery'),
               onTap: () async {
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
                 final pickedFile = await _picker.pickImage(
                   source: ImageSource.gallery,
                 );
@@ -349,7 +349,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
               leading: Icon(Icons.file_upload, color: Colors.cyan[800]),
               title: const Text('Upload Document'),
               onTap: () async {
-                Navigator.pop(context);
+                Navigator.pop(sheetContext);
                 final result = await FilePicker.platform.pickFiles(
                   type: FileType.any,
                   allowMultiple: false,
