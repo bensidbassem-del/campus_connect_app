@@ -62,8 +62,9 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
             data: (users) {
               final filtered = users.where((u) {
                 if (_selectedFilter == 0) return true;
-                if (_selectedFilter == 1)
+                if (_selectedFilter == 1) {
                   return !u.isApproved && u.role == 'STUDENT';
+                }
                 if (_selectedFilter == 2) return u.role == 'STUDENT';
                 if (_selectedFilter == 3) return u.role == 'TEACHER';
                 return true;

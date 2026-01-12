@@ -1,0 +1,236 @@
+> Task :gradle:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle:compileKotlin UP-TO-DATE
+> Task :gradle:compileJava NO-SOURCE
+> Task :gradle:compileGroovy NO-SOURCE
+> Task :gradle:pluginDescriptors UP-TO-DATE
+> Task :gradle:processResources UP-TO-DATE
+> Task :gradle:classes UP-TO-DATE
+> Task :gradle:jar UP-TO-DATE
+> Task :app:DebugMinSdkCheck
+> Task :app:preBuild UP-TO-DATE
+> Task :app:preDebugBuild UP-TO-DATE
+> Task :app:mergeDebugNativeDebugMetadata NO-SOURCE
+> Task :app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+
+> Task :app:compileFlutterBuildDebug
+Error: unable to find directory entry in pubspec.yaml: F:\campus_connect_app\frontend\assets\
+
+> Task :app:packJniLibsflutterBuildDebug UP-TO-DATE
+> Task :file_picker:preBuild UP-TO-DATE
+> Task :file_picker:preDebugBuild UP-TO-DATE
+> Task :flutter_plugin_android_lifecycle:preBuild UP-TO-DATE
+> Task :flutter_plugin_android_lifecycle:preDebugBuild UP-TO-DATE
+> Task :image_picker_android:preBuild UP-TO-DATE
+> Task :image_picker_android:preDebugBuild UP-TO-DATE
+> Task :shared_preferences_android:preBuild UP-TO-DATE
+> Task :shared_preferences_android:preDebugBuild UP-TO-DATE
+> Task :file_picker:writeDebugAarMetadata
+> Task :app:cleanMergeDebugAssets UP-TO-DATE
+> Task :shared_preferences_android:writeDebugAarMetadata
+> Task :image_picker_android:writeDebugAarMetadata
+> Task :app:mergeDebugShaders
+> Task :app:compileDebugShaders NO-SOURCE
+> Task :app:generateDebugAssets UP-TO-DATE
+> Task :flutter_plugin_android_lifecycle:writeDebugAarMetadata
+> Task :file_picker:mergeDebugShaders
+> Task :file_picker:compileDebugShaders NO-SOURCE
+> Task :file_picker:generateDebugAssets UP-TO-DATE
+> Task :file_picker:mergeDebugAssets
+> Task :app:checkDebugAarMetadata
+> Task :flutter_plugin_android_lifecycle:mergeDebugShaders
+> Task :flutter_plugin_android_lifecycle:compileDebugShaders NO-SOURCE
+> Task :flutter_plugin_android_lifecycle:generateDebugAssets UP-TO-DATE
+> Task :flutter_plugin_android_lifecycle:mergeDebugAssets
+> Task :image_picker_android:mergeDebugShaders
+> Task :image_picker_android:compileDebugShaders NO-SOURCE
+> Task :image_picker_android:generateDebugAssets UP-TO-DATE
+> Task :image_picker_android:mergeDebugAssets
+> Task :shared_preferences_android:mergeDebugShaders
+> Task :shared_preferences_android:compileDebugShaders NO-SOURCE
+> Task :shared_preferences_android:generateDebugAssets UP-TO-DATE
+> Task :shared_preferences_android:mergeDebugAssets
+> Task :app:mergeDebugAssets
+> Task :app:copyFlutterAssetsDebug
+> Task :app:generateDebugResValues
+> Task :file_picker:generateDebugResValues
+> Task :file_picker:generateDebugResources
+> Task :file_picker:packageDebugResources
+> Task :flutter_plugin_android_lifecycle:generateDebugResValues
+> Task :flutter_plugin_android_lifecycle:generateDebugResources
+> Task :flutter_plugin_android_lifecycle:packageDebugResources
+> Task :image_picker_android:generateDebugResValues
+> Task :image_picker_android:generateDebugResources
+> Task :image_picker_android:packageDebugResources
+> Task :shared_preferences_android:generateDebugResValues
+> Task :shared_preferences_android:generateDebugResources
+> Task :shared_preferences_android:packageDebugResources
+> Task :app:mapDebugSourceSetPaths
+> Task :app:generateDebugResources
+> Task :app:packageDebugResources
+> Task :app:createDebugCompatibleScreenManifests
+> Task :app:extractDeepLinksDebug
+> Task :app:parseDebugLocalResources
+> Task :file_picker:extractDeepLinksDebug
+> Task :flutter_plugin_android_lifecycle:extractDeepLinksDebug
+> Task :image_picker_android:extractDeepLinksDebug
+
+> Task :flutter_plugin_android_lifecycle:processDebugManifest
+package="io.flutter.plugins.flutter_plugin_android_lifecycle" found in source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.33\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.flutter_plugin_android_lifecycle" from the source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\flutter_plugin_android_lifecycle-2.0.33\android\src\main\AndroidManifest.xml.
+
+> Task :shared_preferences_android:extractDeepLinksDebug
+
+> Task :shared_preferences_android:processDebugManifest
+package="io.flutter.plugins.sharedpreferences" found in source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\shared_preferences_android-2.4.18\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.sharedpreferences" from the source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\shared_preferences_android-2.4.18\android\src\main\AndroidManifest.xml.
+
+> Task :image_picker_android:processDebugManifest
+package="io.flutter.plugins.imagepicker" found in source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\image_picker_android-0.8.13+10\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="io.flutter.plugins.imagepicker" from the source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\image_picker_android-0.8.13+10\android\src\main\AndroidManifest.xml.
+
+> Task :file_picker:processDebugManifest
+package="com.mr.flutter.plugin.filepicker" found in source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\file_picker-8.3.7\android\src\main\AndroidManifest.xml.
+Setting the namespace via the package attribute in the source AndroidManifest.xml is no longer supported, and the value is ignored.
+Recommendation: remove package="com.mr.flutter.plugin.filepicker" from the source AndroidManifest.xml: F:\pub_cache\hosted\pub.dev\file_picker-8.3.7\android\src\main\AndroidManifest.xml.
+
+> Task :file_picker:compileDebugLibraryResources
+> Task :app:mergeDebugResources
+> Task :app:processDebugMainManifest
+> Task :app:outputDebugAppLinkSettings
+> Task :app:processDebugManifest
+> Task :app:processDebugManifestForPackage
+> Task :flutter_plugin_android_lifecycle:compileDebugLibraryResources
+> Task :file_picker:parseDebugLocalResources
+> Task :flutter_plugin_android_lifecycle:parseDebugLocalResources
+> Task :image_picker_android:compileDebugLibraryResources
+> Task :image_picker_android:parseDebugLocalResources
+> Task :shared_preferences_android:compileDebugLibraryResources
+> Task :shared_preferences_android:parseDebugLocalResources
+> Task :file_picker:generateDebugRFile
+> Task :image_picker_android:generateDebugRFile
+> Task :file_picker:javaPreCompileDebug
+> Task :flutter_plugin_android_lifecycle:javaPreCompileDebug
+> Task :shared_preferences_android:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :image_picker_android:javaPreCompileDebug
+> Task :shared_preferences_android:javaPreCompileDebug
+> Task :app:javaPreCompileDebug
+> Task :shared_preferences_android:generateDebugRFile
+> Task :flutter_plugin_android_lifecycle:generateDebugRFile
+> Task :app:compressDebugAssets
+> Task :app:processDebugResources
+> Task :flutter_plugin_android_lifecycle:compileDebugJavaWithJavac
+> Task :flutter_plugin_android_lifecycle:bundleLibCompileToJarDebug
+
+> Task :file_picker:compileDebugJavaWithJavac
+Java compiler version 21 has deprecated support for compiling with source/target version 8.
+Try one of the following options:
+    1. [Recommended] Use Java toolchain with a lower language version
+    2. Set a higher source/target version
+    3. Use a lower version of the JDK running the build (if you're not using Java toolchain)
+For more details on how to configure these settings, see https://developer.android.com/build/jdks.
+To suppress this warning, set android.javaCompile.suppressSourceTargetDeprecationWarning=true in gradle.properties.
+warning: [options] source value 8 is obsolete and will be removed in a future release
+warning: [options] target value 8 is obsolete and will be removed in a future release
+warning: [options] To suppress warnings about obsolete options, use -Xlint:-options.
+3 warnings
+
+> Task :file_picker:bundleLibCompileToJarDebug
+> Task :image_picker_android:compileDebugJavaWithJavac
+> Task :file_picker:processDebugJavaRes NO-SOURCE
+> Task :flutter_plugin_android_lifecycle:processDebugJavaRes NO-SOURCE
+> Task :image_picker_android:processDebugJavaRes NO-SOURCE
+> Task :image_picker_android:bundleLibCompileToJarDebug
+> Task :shared_preferences_android:compileDebugKotlin
+> Task :app:checkDebugDuplicateClasses
+> Task :shared_preferences_android:compileDebugJavaWithJavac
+> Task :shared_preferences_android:processDebugJavaRes
+> Task :shared_preferences_android:bundleLibCompileToJarDebug
+> Task :app:desugarDebugFileDependencies
+> Task :file_picker:bundleLibRuntimeToDirDebug
+> Task :image_picker_android:bundleLibRuntimeToDirDebug
+> Task :app:compileDebugKotlin
+> Task :app:mergeExtDexDebug
+> Task :app:compileDebugJavaWithJavac
+> Task :app:processDebugJavaRes
+> Task :flutter_plugin_android_lifecycle:bundleLibRuntimeToDirDebug
+> Task :shared_preferences_android:bundleLibRuntimeToDirDebug
+> Task :app:dexBuilderDebug
+> Task :app:mergeProjectDexDebug
+> Task :app:configureCMakeDebug[arm64-v8a]
+> Task :app:buildCMakeDebug[arm64-v8a]
+> Task :app:mergeLibDexDebug
+> Task :app:mergeDebugJavaResource
+> Task :app:configureCMakeDebug[armeabi-v7a]
+> Task :app:buildCMakeDebug[armeabi-v7a]
+> Task :app:configureCMakeDebug[x86_64]
+> Task :app:buildCMakeDebug[x86_64]
+> Task :app:mergeDebugJniLibFolders
+> Task :file_picker:mergeDebugJniLibFolders
+> Task :file_picker:mergeDebugNativeLibs NO-SOURCE
+> Task :flutter_plugin_android_lifecycle:mergeDebugJniLibFolders
+> Task :file_picker:copyDebugJniLibsProjectOnly
+> Task :flutter_plugin_android_lifecycle:mergeDebugNativeLibs NO-SOURCE
+> Task :flutter_plugin_android_lifecycle:copyDebugJniLibsProjectOnly
+> Task :image_picker_android:mergeDebugJniLibFolders
+> Task :image_picker_android:mergeDebugNativeLibs NO-SOURCE
+> Task :image_picker_android:copyDebugJniLibsProjectOnly
+> Task :shared_preferences_android:mergeDebugJniLibFolders
+> Task :shared_preferences_android:mergeDebugNativeLibs NO-SOURCE
+> Task :shared_preferences_android:copyDebugJniLibsProjectOnly
+> Task :app:validateSigningDebug
+> Task :app:writeDebugAppMetadata
+> Task :app:writeDebugSigningConfigVersions
+> Task :file_picker:stripDebugDebugSymbols NO-SOURCE
+> Task :file_picker:copyDebugJniLibsProjectAndLocalJars
+> Task :app:mergeDebugNativeLibs
+> Task :file_picker:extractDebugAnnotations
+> Task :file_picker:extractDeepLinksForAarDebug
+> Task :file_picker:mergeDebugGeneratedProguardFiles
+> Task :file_picker:mergeDebugConsumerProguardFiles
+> Task :file_picker:prepareDebugArtProfile
+> Task :flutter_plugin_android_lifecycle:stripDebugDebugSymbols NO-SOURCE
+> Task :flutter_plugin_android_lifecycle:copyDebugJniLibsProjectAndLocalJars
+> Task :flutter_plugin_android_lifecycle:extractDebugAnnotations
+> Task :flutter_plugin_android_lifecycle:extractDeepLinksForAarDebug
+> Task :flutter_plugin_android_lifecycle:mergeDebugGeneratedProguardFiles
+> Task :flutter_plugin_android_lifecycle:mergeDebugConsumerProguardFiles
+> Task :flutter_plugin_android_lifecycle:prepareDebugArtProfile
+> Task :file_picker:mergeDebugJavaResource
+> Task :file_picker:syncDebugLibJars
+> Task :file_picker:prepareLintJarForPublish
+> Task :file_picker:bundleDebugAar
+> Task :file_picker:assembleDebug
+> Task :image_picker_android:stripDebugDebugSymbols NO-SOURCE
+> Task :flutter_plugin_android_lifecycle:prepareLintJarForPublish
+> Task :flutter_plugin_android_lifecycle:mergeDebugJavaResource
+> Task :image_picker_android:copyDebugJniLibsProjectAndLocalJars
+> Task :image_picker_android:extractDebugAnnotations
+> Task :flutter_plugin_android_lifecycle:syncDebugLibJars
+> Task :flutter_plugin_android_lifecycle:bundleDebugAar
+> Task :flutter_plugin_android_lifecycle:assembleDebug
+> Task :image_picker_android:extractDeepLinksForAarDebug
+> Task :image_picker_android:mergeDebugGeneratedProguardFiles
+> Task :image_picker_android:mergeDebugConsumerProguardFiles
+> Task :image_picker_android:prepareDebugArtProfile
+> Task :image_picker_android:prepareLintJarForPublish
+> Task :shared_preferences_android:stripDebugDebugSymbols NO-SOURCE
+> Task :shared_preferences_android:copyDebugJniLibsProjectAndLocalJars
+> Task :image_picker_android:mergeDebugJavaResource
+> Task :image_picker_android:syncDebugLibJars
+> Task :image_picker_android:bundleDebugAar
+> Task :image_picker_android:assembleDebug
+> Task :shared_preferences_android:extractDebugAnnotations
+> Task :shared_preferences_android:extractDeepLinksForAarDebug
+> Task :shared_preferences_android:mergeDebugGeneratedProguardFiles
+> Task :shared_preferences_android:mergeDebugConsumerProguardFiles
+> Task :shared_preferences_android:prepareDebugArtProfile
+> Task :shared_preferences_android:prepareLintJarForPublish
+> Task :shared_preferences_android:mergeDebugJavaResource
+> Task :shared_preferences_android:syncDebugLibJars
+> Task :shared_preferences_android:bundleDebugAar
+> Task :shared_preferences_android:assembleDebug
+> Task :app:stripDebugDebugSymbols
+^CTerminate batch job (Y/N)? ^C

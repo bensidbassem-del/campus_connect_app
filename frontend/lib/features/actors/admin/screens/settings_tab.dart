@@ -30,7 +30,7 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
           contentPadding: EdgeInsets.zero,
           title: const Text('New Student Notifications'),
           subtitle: const Text('Alert when students register'),
-          activeColor: primaryBlue,
+          activeThumbColor: primaryBlue,
           value: true,
           onChanged: (val) {},
         ),
