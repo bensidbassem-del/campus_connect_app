@@ -118,7 +118,7 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      initialValue: _selectedCourseId,
+                      value: _selectedCourseId,
                       items: courses.map((course) {
                         return DropdownMenuItem(
                           value: course.id,
@@ -258,7 +258,7 @@ class _AttendanceTabState extends ConsumerState<AttendanceTab> {
                                                   horizontal: 4,
                                                 ),
                                           ),
-                                          initialValue: _getAttendanceStatus(
+                                          value: _getAttendanceStatus(
                                             record,
                                             day,
                                           ),

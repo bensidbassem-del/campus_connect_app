@@ -73,7 +73,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
                               color: Colors.cyan[800],
                             ),
                           ),
-                          initialValue: _selectedCourseId,
+                          value: _selectedCourseId,
                           items: courses.map((course) {
                             return DropdownMenuItem(
                               value: course.id,
@@ -335,6 +335,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
                       ),
                     );
                   } catch (e) {
+                    if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Error: $e'),
@@ -373,6 +374,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
                       ),
                     );
                   } catch (e) {
+                    if (!mounted) return;
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         content: Text('Error: $e'),
