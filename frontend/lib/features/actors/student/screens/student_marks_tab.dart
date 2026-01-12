@@ -149,7 +149,7 @@ class _StudentMarksTabState extends ConsumerState<StudentMarksTab> {
                       ),
                       const SizedBox(height: 12),
                       DropdownButtonFormField<String>(
-                        value: _selectedCourseId ?? marks.first.courseId,
+                        initialValue: _selectedCourseId ?? marks.first.courseId,
                         decoration: InputDecoration(
                           border: OutlineInputBorder(
                             borderRadius: BorderRadius.circular(8),

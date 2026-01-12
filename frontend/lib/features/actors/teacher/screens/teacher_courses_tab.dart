@@ -73,7 +73,7 @@ class _TeacherCoursesTabState extends ConsumerState<TeacherCoursesTab> {
                               color: Colors.cyan[800],
                             ),
                           ),
-                          value: _selectedCourseId,
+                          initialValue: _selectedCourseId,
                           items: courses.map((course) {
                             return DropdownMenuItem(
                               value: course.id,

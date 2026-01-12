@@ -142,7 +142,7 @@ class _StudentScheduleTabState extends ConsumerState<StudentScheduleTab> {
                       ),
                       Switch(
                         value: _showTodayOnly,
-                        activeColor: Colors.cyan,
+                        activeThumbColor: Colors.cyan,
                         onChanged: (value) {
                           setState(() {
                             _showTodayOnly = value;
