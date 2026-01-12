@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'student_profile_tab.dart';
 import 'student_schedule_tab.dart';
 import 'student_marks_tab.dart';
+import '../../../../shared/services/auth_service.dart';
 
 class StudentScreen extends ConsumerWidget {
   const StudentScreen({super.key});
@@ -32,7 +33,9 @@ class StudentScreen extends ConsumerWidget {
             ),
             IconButton(
               icon: const Icon(Icons.logout),
-              onPressed: () {},
+              onPressed: () {
+                ref.read(authServiceProvider).logout();
+              },
               tooltip: 'Logout',
             ),
           ],
@@ -53,10 +56,7 @@ class StudentScreen extends ConsumerWidget {
             gradient: LinearGradient(
               begin: Alignment.topCenter,
               end: Alignment.bottomCenter,
-              colors: [
-                Color(0xFFE0F7FA),
-                Color(0xFFB2EBF2),
-              ],
+              colors: [Color(0xFFE0F7FA), Color(0xFFB2EBF2)],
             ),
           ),
           child: const TabBarView(

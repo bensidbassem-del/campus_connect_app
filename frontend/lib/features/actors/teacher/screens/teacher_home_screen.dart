@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'teacher_courses_tab.dart';
 import 'attendance_tab.dart';
 import 'marks_tab.dart';
+import '../../../../shared/services/auth_service.dart';
 
 class TeacherScreen extends ConsumerWidget {
   const TeacherScreen({super.key});
@@ -29,6 +30,13 @@ class TeacherScreen extends ConsumerWidget {
             IconButton(
               icon: const Icon(Icons.account_circle),
               onPressed: () {},
+            ),
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                ref.read(authServiceProvider).logout();
+              },
+              tooltip: 'Logout',
             ),
           ],
           bottom: TabBar(

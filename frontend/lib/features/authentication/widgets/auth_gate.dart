@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../screens/login_screen.dart';
-import '../../../shared/services/auth_service_provider.dart';
+import '../../../shared/services/auth_service.dart';
 import '../../../shared/providers/auth_provider.dart';
 
 import '../../actors/admin/screens/admin_home_screen.dart';

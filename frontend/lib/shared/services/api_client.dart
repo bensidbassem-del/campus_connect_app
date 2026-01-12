@@ -3,17 +3,32 @@ import 'dart:convert';
 import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final apiClientProvider = Provider<ApiClient>((ref) => ApiClient());
 
 class ApiClient {
   static String get baseUrl {
+    String host;
     if (kIsWeb) {
-      return 'http://localhost:8000/api';
+      host = 'http://localhost:8000';
     } else if (Platform.isAndroid) {
-      // 10.0.2.2 is the special IP that points to the host computer's localhost
-      return 'http://10.0.2.2:8000/api';
+      // 10.0.2.2 is the host loopback for Android emulators
+      host = 'http://10.0.2.2:8000';
     } else {
-      return 'http://localhost:8000/api';
+      // iOS simulators and Desktop use localhost
+      host = 'http://localhost:8000';
     }
+    return '$host/api/';
+  }
+
+  // Helper to ensure URL joining is safe
+  String _buildUrl(String endpoint) {
+    // Remove leading slash if it exists because baseUrl now ends with /
+    final cleanEndpoint = endpoint.startsWith('/')
+        ? endpoint.substring(1)
+        : endpoint;
+    return '$baseUrl$cleanEndpoint';
   }
 
   // NOTE: If using a PHYSICAL device, you must:
@@ -32,13 +47,17 @@ class ApiClient {
   Future<http.Response> get(String endpoint, {bool includeToken = true}) async {
     final token = includeToken ? await _getToken() : null;
 
-    return await http.get(
-      Uri.parse('$baseUrl$endpoint'),
+    final url = _buildUrl(endpoint);
+    debugPrint('ApiClient GET: $url');
+    final response = await http.get(
+      Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
       },
     );
+    debugPrint('ApiClient Response [${response.statusCode}]: $url');
+    return response;
   }
 
   // POST request
@@ -49,14 +68,18 @@ class ApiClient {
   }) async {
     final token = includeToken ? await _getToken() : null;
 
-    return await http.post(
-      Uri.parse('$baseUrl$endpoint'),
+    final url = _buildUrl(endpoint);
+    debugPrint('ApiClient POST: $url');
+    final response = await http.post(
+      Uri.parse(url),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
       },
       body: jsonEncode(data),
     );
+    debugPrint('ApiClient Response [${response.statusCode}]: $url');
+    return response;
   }
 
   // PUT request
@@ -68,7 +91,7 @@ class ApiClient {
     final token = includeToken ? await _getToken() : null;
 
     return await http.put(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(_buildUrl(endpoint)),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',
@@ -85,7 +108,7 @@ class ApiClient {
     final token = includeToken ? await _getToken() : null;
 
     return await http.delete(
-      Uri.parse('$baseUrl$endpoint'),
+      Uri.parse(_buildUrl(endpoint)),
       headers: {
         'Content-Type': 'application/json',
         if (token != null) 'Authorization': 'Bearer $token',

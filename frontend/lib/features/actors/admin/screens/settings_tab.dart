@@ -1,13 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../../../../shared/services/auth_service.dart';
 
-class SettingsTab extends StatefulWidget {
+class SettingsTab extends ConsumerStatefulWidget {
   const SettingsTab({super.key});
 
   @override
-  State<SettingsTab> createState() => _SettingsTabState();
+  ConsumerState<SettingsTab> createState() => _SettingsTabState();
 }
 
-class _SettingsTabState extends State<SettingsTab> {
+class _SettingsTabState extends ConsumerState<SettingsTab> {
   bool _notificationsEnabled = true;
   bool _autoApproveEnabled = false;
 
@@ -193,8 +195,7 @@ class _SettingsTabState extends State<SettingsTab> {
   }
 
   void _logout() {
-    // TODO: Backend - Logout admin
-    // Clear tokens and navigate to login
+    ref.read(authServiceProvider).logout();
   }
 
   void _checkUpdates() {

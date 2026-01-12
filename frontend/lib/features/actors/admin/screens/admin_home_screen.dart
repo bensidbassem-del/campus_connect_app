@@ -4,6 +4,7 @@ import '../screens/dashboard_tab.dart';
 import '../screens/courses_tab.dart';
 import '../screens/settings_tab.dart';
 import '../screens/user_management_tab.dart';
+import '../../../../shared/services/auth_service.dart';
 
 class Admin {
   final String id;
@@ -32,6 +33,15 @@ class AdminHomeScreen extends ConsumerWidget {
           backgroundColor: Colors.cyan[800],
           foregroundColor: Colors.white,
           elevation: 4,
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                ref.read(authServiceProvider).logout();
+              },
+              tooltip: 'Logout',
+            ),
+          ],
           bottom: TabBar(
             labelColor: Colors.cyanAccent[400],
             unselectedLabelColor: Colors.grey[300],

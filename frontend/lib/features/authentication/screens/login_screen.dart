@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../widgets/auth_gate.dart';
-import '../../../shared/services/auth_service_provider.dart';
+import '../../../shared/services/auth_service.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends ConsumerStatefulWidget {
