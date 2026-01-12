@@ -31,15 +31,16 @@ class User(AbstractUser):
     
     # Student-specific fields
     student_id = models.CharField(max_length=20, unique=True, null=True, blank=True)
+    program = models.CharField(max_length=100, null=True, blank=True)  # e.g., "Computer Science"
+    semester = models.IntegerField(default=1, validators=[MinValueValidator(1), MaxValueValidator(10)])
     birth_date = models.DateField(null=True, blank=True)
     phone = models.CharField(max_length=15, blank=True)
     address = models.TextField(blank=True)
     profile_picture = models.ImageField(upload_to='profiles/', null=True, blank=True)
     
     # Registration approval system
-    # When student registers via Flutter, is_approved starts as False
-    # Admin approves via AdminHomeScreen → user can login
     is_approved = models.BooleanField(default=False)
+    rejection_reason = models.TextField(null=True, blank=True)  # Explain why a registration was rejected
     
     # Foreign key to Group (student belongs to one group)
     group = models.ForeignKey('Group', on_delete=models.SET_NULL, null=True, blank=True, related_name='students')
@@ -68,17 +69,6 @@ class Course(models.Model):
     name = models.CharField(max_length=200)  # e.g., "Mobile Development"
     description = models.TextField(blank=True)
     credits = models.IntegerField(default=3)
-    
-    # Teacher assigned to this course
-    teacher = models.ForeignKey(
-        User, 
-        on_delete=models.SET_NULL, 
-        null=True, 
-        blank=True,
-        limit_choices_to={'role': User.TEACHER},
-        related_name='teaching_courses'
-    )
-    
     created_at = models.DateTimeField(auto_now_add=True)
     
     class Meta:
@@ -114,6 +104,25 @@ class Group(models.Model):
     
     def __str__(self):
         return self.name
+
+# ============================================================================
+# ASSIGNMENT MODEL - Junction between Teacher, Course, and Group
+# ============================================================================
+class CourseAssignment(models.Model):
+    """
+    Solves the logical problem of assigning specific teachers to specific courses for specific groups.
+    A teacher can teach 'Math' to 'Group A', but a different teacher can teach 'Math' to 'Group B'.
+    """
+    teacher = models.ForeignKey(User, on_delete=models.CASCADE, limit_choices_to={'role': User.TEACHER}, related_name='teaching_assignments')
+    course = models.ForeignKey(Course, on_delete=models.CASCADE, related_name='assignments')
+    group = models.ForeignKey(Group, on_delete=models.CASCADE, related_name='course_assignments')
+    academic_year = models.CharField(max_length=10) # Overrides group's year if needed
+
+    class Meta:
+        unique_together = ['course', 'group', 'academic_year'] # Only one teacher per course/group combo
+
+    def __str__(self):
+        return f"{self.teacher.username} - {self.course.code} ({self.group.name})"
 
 
 # ============================================================================
@@ -295,3 +304,53 @@ class Timetable(models.Model):
     
     def __str__(self):
         return f"{self.group.name} - {self.title}"
+
+
+# ============================================================================
+# MESSAGE MODEL - Peer-to-peer communication
+# ============================================================================
+class Message(models.Model):
+    """
+    Handles peer-to-peer messaging between actors.
+    
+    Flutter Connection: ChatScreen uses this for communication.
+    """
+    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name='sent_messages')
+    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name='received_messages')
+    content = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['timestamp']
+
+    def __str__(self):
+        return f"From {self.sender.username} to {self.receiver.username}"
+
+
+# ============================================================================
+# NOTIFICATION MODEL - System alerts and exam notifications
+# ============================================================================
+class Notification(models.Model):
+    """
+    Targeted notifications for users (e.g., Exam alerts, registration approval).
+    """
+    NOTIFICATION_TYPES = [
+        ('EXAM', 'Exam Notification'),
+        ('GRADE', 'New Grade Published'),
+        ('INFO', 'General Information'),
+        ('REG', 'Registration Update'),
+    ]
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='notifications')
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    notification_type = models.CharField(max_length=10, choices=NOTIFICATION_TYPES, default='INFO')
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_read = models.BooleanField(default=False)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.notification_type}: {self.title} for {self.user.username}"

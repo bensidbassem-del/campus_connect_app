@@ -12,7 +12,7 @@ Useful for:
 
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin as BaseUserAdmin
-from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable
+from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment
 
 
 # ============================================================================
@@ -33,15 +33,15 @@ class UserAdmin(BaseUserAdmin):
     # Edit form
     fieldsets = BaseUserAdmin.fieldsets + (
         ('Campus Connect Info', {
-            'fields': ('role', 'student_id', 'birth_date', 'phone', 'address', 
-                      'profile_picture', 'is_approved', 'group')
+            'fields': ('role', 'student_id', 'program', 'semester', 'birth_date', 'phone', 'address', 
+                      'profile_picture', 'is_approved', 'rejection_reason', 'group')
         }),
     )
     
     # Add form (when creating new user)
     add_fieldsets = BaseUserAdmin.add_fieldsets + (
         ('Campus Connect Info', {
-            'fields': ('role', 'student_id', 'is_approved', 'group')
+            'fields': ('role', 'student_id', 'program', 'semester', 'is_approved', 'group')
         }),
     )
     
@@ -68,9 +68,9 @@ class UserAdmin(BaseUserAdmin):
 class CourseAdmin(admin.ModelAdmin):
     """Admin interface for Course management"""
     
-    list_display = ['code', 'name', 'teacher', 'credits', 'created_at']
-    list_filter = ['teacher', 'credits']
-    search_fields = ['code', 'name', 'teacher__username']
+    list_display = ['code', 'name', 'credits', 'created_at']
+    list_filter = ['credits']
+    search_fields = ['code', 'name']
     
     # Show related info
     filter_horizontal = []  # For many-to-many fields if needed
@@ -78,9 +78,6 @@ class CourseAdmin(admin.ModelAdmin):
     fieldsets = (
         ('Course Information', {
             'fields': ('code', 'name', 'description', 'credits')
-        }),
-        ('Assignment', {
-            'fields': ('teacher',)
         }),
     )
 
@@ -221,6 +218,18 @@ class TimetableAdmin(admin.ModelAdmin):
         count = queryset.update(is_active=False)
         self.message_user(request, f'{count} timetable(s) deactivated.')
     deactivate_timetables.short_description = 'Deactivate selected timetables'
+
+
+# ============================================================================
+# COURSE ASSIGNMENT ADMIN
+# ============================================================================
+@admin.register(CourseAssignment)
+class CourseAssignmentAdmin(admin.ModelAdmin):
+    """Admin interface for Course-Teacher-Group assignments"""
+    
+    list_display = ['teacher', 'course', 'group', 'academic_year']
+    list_filter = ['academic_year', 'group', 'teacher', 'course']
+    search_fields = ['teacher__username', 'course__name', 'group__name']
 
 
 # ============================================================================

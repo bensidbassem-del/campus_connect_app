@@ -1,142 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-
-// ✅ CORRECTION : Ajout des champs manquants dans la classe User
-class User {
-  final String id;
-  final String name;
-  final String email; // Champ ajouté
-  final String role; // 'student', 'teacher', 'pending'
-  final String? groupId; // Champ ajouté (optionnel)
-
-  User({
-    required this.id,
-    required this.name,
-    required this.email,
-    required this.role,
-    this.groupId,
-  });
-
-  factory User.fromJson(Map<String, dynamic> json) {
-    return User(
-      id: json['id'],
-      name: json['name'],
-      email: json['email'] ?? '', // Avec valeur par défaut
-      role: json['role'],
-      groupId: json['groupId'],
-    );
-  }
-}
-
-// Provider for user management
-final usersProvider = AsyncNotifierProvider<UsersNotifier, List<User>>(() {
-  return UsersNotifier();
-});
-
-class UsersNotifier extends AsyncNotifier<List<User>> {
-  @override
-  Future<List<User>> build() async {
-    // État initial
-    return [];
-  }
-
-  Future<void> fetchUsers() async {
-    state = const AsyncLoading<List<User>>();
-    try {
-      // TODO: Backend - GET /api/admin/users
-      await Future.delayed(const Duration(seconds: 1)); // Simulation
-      final users = [
-        User(
-          id: '1',
-          name: 'John Doe',
-          email: 'john@example.com',
-          role: 'student',
-          groupId: 'G101',
-        ),
-        User(
-          id: '2',
-          name: 'Jane Smith',
-          email: 'jane@example.com',
-          role: 'teacher',
-        ),
-        User(
-          id: '3',
-          name: 'Bob Johnson',
-          email: 'bob@example.com',
-          role: 'pending',
-        ),
-      ];
-      state = AsyncData<List<User>>(users);
-    } catch (e, stackTrace) {
-      state = AsyncError<List<User>>(e, stackTrace);
-      debugPrint('Error fetching users: $e');
-    }
-  }
-
-  Future<void> approveRegistration(String userId) async {
-    try {
-      // TODO: Backend - POST /api/admin/users/$userId/approve
-      await Future.delayed(const Duration(seconds: 1));
-
-      state.whenData((users) {
-        final updatedUsers = users.map((user) {
-          if (user.id == userId) {
-            return User(
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: 'student', // Changer de 'pending' à 'student'
-              groupId: user.groupId,
-            );
-          }
-          return user;
-        }).toList();
-        state = AsyncData<List<User>>(updatedUsers);
-      });
-    } catch (e, stackTrace) {
-      state = AsyncError<List<User>>(e, stackTrace);
-    }
-  }
-
-  Future<void> deleteUser(String userId) async {
-    try {
-      // TODO: Backend - DELETE /api/admin/users/$userId
-      await Future.delayed(const Duration(seconds: 1));
-
-      state.whenData((users) {
-        final updatedUsers = users.where((user) => user.id != userId).toList();
-        state = AsyncData<List<User>>(updatedUsers);
-      });
-    } catch (e, stackTrace) {
-      state = AsyncError<List<User>>(e, stackTrace);
-    }
-  }
-
-  Future<void> assignGroup(String userId, String groupId) async {
-    try {
-      // TODO: Backend - POST /api/admin/users/assign-group
-      await Future.delayed(const Duration(seconds: 1));
-
-      state.whenData((users) {
-        final updatedUsers = users.map((user) {
-          if (user.id == userId) {
-            return User(
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              role: user.role,
-              groupId: groupId,
-            );
-          }
-          return user;
-        }).toList();
-        state = AsyncData<List<User>>(updatedUsers);
-      });
-    } catch (e, stackTrace) {
-      state = AsyncError<List<User>>(e, stackTrace);
-    }
-  }
-}
+import '../../../authentication/models/user_model.dart';
+import '../providers/admin_providers.dart';
 
 class UserManagementTab extends ConsumerStatefulWidget {
   const UserManagementTab({super.key});
@@ -146,347 +11,220 @@ class UserManagementTab extends ConsumerStatefulWidget {
 }
 
 class _UserManagementTabState extends ConsumerState<UserManagementTab> {
-  int _selectedTab = 0;
-  final List<String> userTypes = ['All', 'Students', 'Teachers', 'Pending'];
-
-  @override
-  void initState() {
-    super.initState();
-    // Fetch users on init
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      ref.read(usersProvider.notifier).fetchUsers();
-    });
-  }
+  int _selectedFilter = 0;
+  final List<String> _filters = ['All', 'Approvals', 'Students', 'Teachers'];
 
   @override
   Widget build(BuildContext context) {
-    // ✅ CORRECTION : Utiliser AsyncValue au lieu de List<User> directement
     final usersAsync = ref.watch(usersProvider);
+    const primaryBlue = Color(0xFF0066FF);
 
     return Column(
       children: [
-        // Tabs for user types
+        // Simple Filter Bar
         Container(
-          color: Colors.white,
-          child: Row(
-            children: userTypes.asMap().entries.map((entry) {
-              final index = entry.key;
-              final type = entry.value;
-              return Expanded(
-                child: InkWell(
-                  onTap: () => setState(() => _selectedTab = index),
-                  child: Container(
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    decoration: BoxDecoration(
-                      border: Border(
-                        bottom: BorderSide(
-                          color: _selectedTab == index
-                              ? Colors.cyan[400]!
-                              : Colors.transparent,
-                          width: 3,
-                        ),
-                      ),
-                    ), // ✅ CORRECTION : Virgule déplacée
-                    child: Text(
-                      type,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontWeight: _selectedTab == index
-                            ? FontWeight.bold
-                            : FontWeight.normal,
-                        color: _selectedTab == index
-                            ? Colors.cyan[800]
-                            : Colors.grey,
-                      ),
+          height: 50,
+          margin: const EdgeInsets.symmetric(vertical: 8),
+          child: ListView.builder(
+            scrollDirection: Axis.horizontal,
+            padding: const EdgeInsets.symmetric(horizontal: 16),
+            itemCount: _filters.length,
+            itemBuilder: (context, index) {
+              final active = _selectedFilter == index;
+              return Padding(
+                padding: const EdgeInsets.only(right: 8),
+                child: ChoiceChip(
+                  label: Text(_filters[index]),
+                  selected: active,
+                  onSelected: (val) {
+                    if (val) setState(() => _selectedFilter = index);
+                  },
+                  selectedColor: primaryBlue,
+                  labelStyle: TextStyle(
+                    color: active ? Colors.white : Colors.black,
+                    fontSize: 13,
+                  ),
+                  backgroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(4),
+                    side: BorderSide(
+                      color: active ? primaryBlue : Colors.grey[300]!,
                     ),
                   ),
                 ),
               );
-            }).toList(),
+            },
           ),
         ),
 
-        // ✅ CORRECTION : Gestion des états asynchrones
         Expanded(
           child: usersAsync.when(
             data: (users) {
-              // Filter users based on selected tab
-              List<User> filteredUsers = users.where((user) {
-                if (_selectedTab == 0) return true;
-                if (_selectedTab == 1) return user.role == 'student';
-                if (_selectedTab == 2) return user.role == 'teacher';
-                if (_selectedTab == 3) return user.role == 'pending';
+              final filtered = users.where((u) {
+                if (_selectedFilter == 0) return true;
+                if (_selectedFilter == 1)
+                  return !u.isApproved && u.role == 'STUDENT';
+                if (_selectedFilter == 2) return u.role == 'STUDENT';
+                if (_selectedFilter == 3) return u.role == 'TEACHER';
                 return true;
               }).toList();
 
-              if (filteredUsers.isEmpty) {
-                return Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.people_outline,
-                        size: 60,
-                        color: Colors.grey[400],
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No users found',
-                        style: TextStyle(color: Colors.grey[600], fontSize: 16),
-                      ),
-                    ],
+              if (filtered.isEmpty) {
+                return const Center(
+                  child: Text(
+                    'No users found.',
+                    style: TextStyle(color: Colors.grey),
                   ),
                 );
               }
 
-              return ListView.builder(
-                padding: const EdgeInsets.all(16.0),
-                itemCount: filteredUsers.length,
+              return ListView.separated(
+                padding: const EdgeInsets.all(16),
+                itemCount: filtered.length,
+                separatorBuilder: (context, index) =>
+                    Divider(height: 1, color: Colors.grey[100]),
                 itemBuilder: (context, index) {
-                  final user = filteredUsers[index];
-                  return Card(
-                    margin: const EdgeInsets.only(bottom: 12),
-                    elevation: 2,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
+                  final user = filtered[index];
+                  return ListTile(
+                    contentPadding: const EdgeInsets.symmetric(vertical: 4),
+                    title: Text(
+                      user.name,
+                      style: const TextStyle(
+                        fontWeight: FontWeight.w500,
+                        fontSize: 15,
+                      ),
                     ),
-                    child: ListTile(
-                      leading: CircleAvatar(
-                        backgroundColor: _getUserColor(user.role),
-                        child: Text(
-                          user.name.isNotEmpty
-                              ? user.name[0].toUpperCase()
-                              : '?',
-                          style: const TextStyle(color: Colors.white),
+                    subtitle: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          user.email,
+                          style: TextStyle(
+                            color: Colors.grey[600],
+                            fontSize: 12,
+                          ),
                         ),
-                      ),
-                      title: Text(user.name),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(user.email),
-                          const SizedBox(height: 4),
+                        if (user.role == 'STUDENT')
                           Text(
-                            user.role.toUpperCase(),
-                            style: TextStyle(
-                              color: _getRoleColor(user.role),
-                              fontSize: 12,
-                              fontWeight: FontWeight.bold,
+                            '${user.program ?? "No Program"} • Semester ${user.semester ?? "?"}',
+                            style: const TextStyle(
+                              fontSize: 11,
+                              color: primaryBlue,
                             ),
                           ),
-                          if (user.groupId != null && user.groupId!.isNotEmpty)
-                            Text(
-                              'Group: ${user.groupId}',
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: Colors.grey,
-                              ),
-                            ),
-                        ],
-                      ),
-                      trailing: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          if (user.role == 'pending')
-                            IconButton(
-                              icon: const Icon(
-                                Icons.check_circle,
-                                color: Colors.green,
-                              ),
-                              onPressed: () => _approveUser(user.id),
-                            ),
-                          IconButton(
-                            icon: const Icon(Icons.edit, color: Colors.cyan),
-                            onPressed: () => _editUser(user),
-                          ),
-                          IconButton(
-                            icon: const Icon(Icons.delete, color: Colors.red),
-                            onPressed: () => _deleteUser(user.id, user.name),
-                          ),
-                        ],
-                      ),
+                      ],
                     ),
+                    trailing: _buildTrailing(user),
                   );
                 },
               );
             },
-            loading: () => const Center(child: CircularProgressIndicator()),
-            error: (error, stackTrace) => Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, color: Colors.red, size: 50),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Error loading users',
-                    style: TextStyle(color: Colors.red[700], fontSize: 16),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    error.toString(),
-                    textAlign: TextAlign.center,
-                    style: const TextStyle(color: Colors.grey),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () =>
-                        ref.read(usersProvider.notifier).fetchUsers(),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan,
-                    ),
-                    child: const Text(
-                      'Retry',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ],
+            loading: () => const Center(
+              child: CircularProgressIndicator(
+                color: primaryBlue,
+                strokeWidth: 2,
               ),
             ),
+            error: (e, st) => Center(child: Text('Error: $e')),
           ),
         ),
       ],
     );
   }
 
-  Color _getUserColor(String role) {
-    switch (role) {
-      case 'student':
-        return Colors.cyan[700]!;
-      case 'teacher':
-        return Colors.teal[700]!;
-      case 'admin':
-        return Colors.purple[700]!;
-      default:
-        return Colors.grey[700]!;
-    }
-  }
-
-  Color _getRoleColor(String role) {
-    switch (role) {
-      case 'student':
-        return Colors.cyan;
-      case 'teacher':
-        return Colors.teal;
-      case 'pending':
-        return Colors.orange;
-      default:
-        return Colors.grey;
-    }
-  }
-
-  void _approveUser(String userId) async {
-    try {
-      await ref.read(usersProvider.notifier).approveRegistration(userId);
-      if (!mounted) return;
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('User approved successfully'),
-          backgroundColor: Colors.green,
-        ),
-      );
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error: $e'), backgroundColor: Colors.red),
+  Widget _buildTrailing(AppUser user) {
+    if (!user.isApproved &&
+        user.role == 'STUDENT' &&
+        user.rejectionReason == null) {
+      return Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          IconButton(
+            icon: const Icon(
+              Icons.check_circle_outline,
+              color: Colors.green,
+              size: 20,
+            ),
+            onPressed: () =>
+                ref.read(usersProvider.notifier).approveStudent(user.id),
+          ),
+          IconButton(
+            icon: const Icon(
+              Icons.cancel_outlined,
+              color: Colors.red,
+              size: 20,
+            ),
+            onPressed: () => _showRejectDialog(user.id),
+          ),
+        ],
       );
     }
+
+    return IconButton(
+      icon: const Icon(Icons.delete_outline, color: Colors.black26, size: 20),
+      onPressed: () => _confirmDelete(user),
+    );
   }
 
-  void _editUser(User user) {
-    final groupController = TextEditingController(text: user.groupId ?? '');
-
+  void _showRejectDialog(String id) {
+    final controller = TextEditingController();
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Edit User'),
-        content: SizedBox(
-          width: 300,
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: groupController,
-                decoration: const InputDecoration(
-                  labelText: 'Group ID',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text('Assign to courses...'),
-              // TODO: Add course assignment UI here
-            ],
+        shape: const RoundedRectangleBorder(),
+        title: const Text(
+          'Reject Student',
+          style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+        content: TextField(
+          controller: controller,
+          decoration: const InputDecoration(
+            hintText: 'Reason for rejection',
+            border: OutlineInputBorder(borderRadius: BorderRadius.zero),
           ),
+          maxLines: 2,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
           ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.cyan),
-            onPressed: () async {
-              try {
-                await ref
-                    .read(usersProvider.notifier)
-                    .assignGroup(user.id, groupController.text.trim());
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(
-                    content: Text('User updated successfully'),
-                    backgroundColor: Colors.green,
-                  ),
-                );
-              } catch (e) {
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.black,
+              shape: const RoundedRectangleBorder(),
+            ),
+            onPressed: () {
+              ref
+                  .read(usersProvider.notifier)
+                  .rejectStudent(id, controller.text);
+              Navigator.pop(context);
             },
-            child: const Text('Save', style: TextStyle(color: Colors.white)),
+            child: const Text('Reject', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
     );
   }
 
-  void _deleteUser(String userId, String userName) {
+  void _confirmDelete(AppUser user) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Confirm Delete'),
-        content: Text('Are you sure you want to delete $userName?'),
+        shape: const RoundedRectangleBorder(),
+        title: const Text('Delete User'),
+        content: Text('Delete ${user.name}? This action is permanent.'),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: const Text('Cancel', style: TextStyle(color: Colors.black)),
           ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () async {
-              try {
-                await ref.read(usersProvider.notifier).deleteUser(userId);
-                if (!context.mounted) return;
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('$userName deleted successfully'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              } catch (e) {
-                Navigator.pop(context);
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Text('Error: $e'),
-                    backgroundColor: Colors.red,
-                  ),
-                );
-              }
+          TextButton(
+            onPressed: () {
+              ref.read(usersProvider.notifier).deleteUser(user.id, user.role);
+              Navigator.pop(context);
             },
-            child: const Text('Delete', style: TextStyle(color: Colors.white)),
+            child: const Text('Delete', style: TextStyle(color: Colors.red)),
           ),
         ],
       ),

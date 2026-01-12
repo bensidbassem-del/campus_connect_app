@@ -10,195 +10,74 @@ class SettingsTab extends ConsumerStatefulWidget {
 }
 
 class _SettingsTabState extends ConsumerState<SettingsTab> {
-  bool _notificationsEnabled = true;
-  bool _autoApproveEnabled = false;
-
   @override
   Widget build(BuildContext context) {
+    const primaryBlue = Color(0xFF0066FF);
+
     return ListView(
-      padding: const EdgeInsets.all(16.0),
+      padding: const EdgeInsets.all(24.0),
       children: [
-        Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Admin Preferences',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.cyan[800],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                SwitchListTile(
-                  title: const Text('Enable Notifications'),
-                  subtitle: const Text(
-                    'Receive notifications for new registrations',
-                  ),
-                  activeThumbColor: Colors.cyan,
-                  value: _notificationsEnabled,
-                  onChanged: (value) =>
-                      setState(() => _notificationsEnabled = value),
-                ),
-                SwitchListTile(
-                  title: const Text('Auto-approve Registrations'),
-                  subtitle: const Text(
-                    'Automatically approve student registrations',
-                  ),
-                  activeThumbColor: Colors.cyan,
-                  value: _autoApproveEnabled,
-                  onChanged: (value) =>
-                      setState(() => _autoApproveEnabled = value),
-                ),
-              ],
-            ),
+        const Text(
+          'Preferences',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
           ),
         ),
+        const SizedBox(height: 16),
+        SwitchListTile(
+          contentPadding: EdgeInsets.zero,
+          title: const Text('New Student Notifications'),
+          subtitle: const Text('Alert when students register'),
+          activeColor: primaryBlue,
+          value: true,
+          onChanged: (val) {},
+        ),
+        const Divider(),
+        const SizedBox(height: 32),
 
-        const SizedBox(height: 20),
-
-        Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'System Actions',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.cyan[800],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                ListTile(
-                  leading: Icon(Icons.backup, color: Colors.cyan[700]),
-                  title: const Text('Backup Database'),
-                  subtitle: const Text('Create a backup of all system data'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _backupDatabase(),
-                ),
-                ListTile(
-                  leading: Icon(Icons.restore, color: Colors.cyan[700]),
-                  title: const Text('Restore Defaults'),
-                  subtitle: const Text('Reset all settings to default'),
-                  trailing: const Icon(Icons.chevron_right),
-                  onTap: () => _restoreDefaults(),
-                ),
-                ListTile(
-                  leading: Icon(Icons.logout, color: Colors.red),
-                  title: const Text(
-                    'Logout',
-                    style: TextStyle(color: Colors.red),
-                  ),
-                  trailing: const Icon(Icons.chevron_right, color: Colors.red),
-                  onTap: () => _logout(),
-                ),
-              ],
-            ),
+        const Text(
+          'Account Actions',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
           ),
         ),
+        const SizedBox(height: 16),
+        ListTile(
+          contentPadding: EdgeInsets.zero,
+          leading: const Icon(Icons.logout_outlined, color: Colors.red),
+          title: const Text('Sign Out', style: TextStyle(color: Colors.red)),
+          onTap: () => ref.read(authServiceProvider).logout(),
+        ),
+        const Divider(),
+        const SizedBox(height: 32),
 
-        const SizedBox(height: 20),
-
-        Card(
-          elevation: 3,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+        const Text(
+          'System Info',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.bold,
+            letterSpacing: 1.2,
           ),
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'System Info',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.cyan[800],
-                  ),
-                ),
-                const SizedBox(height: 16),
-                const ListTile(
-                  title: Text('App Version'),
-                  subtitle: Text('1.0.0'),
-                ),
-                ListTile(
-                  title: const Text('Last Backup'),
-                  subtitle: const Text('2024-01-15 14:30'),
-                  trailing: ElevatedButton(
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.cyan,
-                    ),
-                    onPressed: () => _checkUpdates(),
-                    child: const Text(
-                      'Check Updates',
-                      style: TextStyle(color: Colors.white),
-                    ),
-                  ),
-                ),
-              ],
-            ),
+        ),
+        const SizedBox(height: 16),
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('Version'),
+          trailing: Text(
+            '1.0.0 (Production)',
+            style: TextStyle(color: Colors.grey),
           ),
+        ),
+        const ListTile(
+          contentPadding: EdgeInsets.zero,
+          title: Text('API Status'),
+          trailing: Text('Connected', style: TextStyle(color: Colors.green)),
         ),
       ],
     );
-  }
-
-  void _backupDatabase() {
-    // TODO: Backend - POST /api/admin/backup
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(
-        content: Text('Database backup initiated'),
-        backgroundColor: Colors.green,
-      ),
-    );
-  }
-
-  void _restoreDefaults() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Confirm Reset'),
-        content: const Text(
-          'Are you sure you want to reset all settings to default?',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.orange),
-            onPressed: () {
-              // TODO: Backend - Reset settings
-              Navigator.pop(context);
-            },
-            child: const Text('Reset', style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void _logout() {
-    ref.read(authServiceProvider).logout();
-  }
-
-  void _checkUpdates() {
-    // TODO: Backend - Check for app updates
   }
 }

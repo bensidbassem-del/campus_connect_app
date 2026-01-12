@@ -23,19 +23,17 @@ class ApiClient {
   }
 
   // Helper to ensure URL joining is safe
-  String _buildUrl(String endpoint) {
-    // Remove leading slash if it exists because baseUrl now ends with /
+  String _buildUrl(String endpoint, [Map<String, String>? queryParams]) {
     final cleanEndpoint = endpoint.startsWith('/')
         ? endpoint.substring(1)
         : endpoint;
-    return '$baseUrl$cleanEndpoint';
-  }
 
-  // NOTE: If using a PHYSICAL device, you must:
-  // 1. Connect both phone and computer to the same Wi-Fi
-  // 2. Change the IP below to your computer's local IP (e.g., 192.168.1.5)
-  // 3. Run Django with: py manage.py runserver 0.0.0.0:8000
-  // static const String baseUrl = 'http://192.168.1.5:8000/api';
+    final uri = Uri.parse('$baseUrl$cleanEndpoint');
+    if (queryParams != null && queryParams.isNotEmpty) {
+      return uri.replace(queryParameters: queryParams).toString();
+    }
+    return uri.toString();
+  }
 
   // Get stored JWT token
   Future<String?> _getToken() async {
@@ -44,10 +42,14 @@ class ApiClient {
   }
 
   // GET request
-  Future<http.Response> get(String endpoint, {bool includeToken = true}) async {
+  Future<http.Response> get(
+    String endpoint, {
+    Map<String, String>? queryParams,
+    bool includeToken = true,
+  }) async {
     final token = includeToken ? await _getToken() : null;
 
-    final url = _buildUrl(endpoint);
+    final url = _buildUrl(endpoint, queryParams);
     debugPrint('ApiClient GET: $url');
     final response = await http.get(
       Uri.parse(url),

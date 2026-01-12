@@ -7,14 +7,15 @@ URL Pattern in Flutter:
 http://your-server/api/endpoint-name/
 """
 
-from rest_framework import generics, status, permissions
+from rest_framework import generics, status, permissions, filters
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
 from django.shortcuts import get_object_or_404
 from django.db.models import Q
+from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable
+from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment, Message, Notification
 from .serializers import *
 from .permissions import IsAdmin, IsTeacher, IsStudent, IsApprovedStudent
 
@@ -196,21 +197,38 @@ class ApproveStudentView(APIView):
     """
     
     permission_classes = [IsAdmin]
-    
+
     def post(self, request, pk):
         try:
             student = User.objects.get(pk=pk, role=User.STUDENT)
             student.is_approved = True
+            student.rejection_reason = None # Clear any previous rejection
             student.save()
             return Response({
                 'message': 'Student approved successfully',
                 'student': UserSerializer(student).data
             })
         except User.DoesNotExist:
-            return Response(
-                {'error': 'Student not found'},
-                status=status.HTTP_404_NOT_FOUND
-            )
+            return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+    
+class RejectStudentView(APIView):
+    """
+    Reject a student registration with a reason.
+    
+    Flutter Connection: ManageStudentsScreen → POST /api/admin/reject-student/{id}/
+    """
+    permission_classes = [IsAdmin]
+
+    def post(self, request, pk):
+        reason = request.data.get('reason', 'Requirements not met')
+        try:
+            student = User.objects.get(pk=pk, role=User.STUDENT)
+            student.is_approved = False
+            student.rejection_reason = reason
+            student.save()
+            return Response({'message': 'Student rejected', 'reason': reason})
+        except User.DoesNotExist:
+            return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class DeleteStudentView(generics.DestroyAPIView):
@@ -228,29 +246,17 @@ class DeleteStudentView(generics.DestroyAPIView):
 
 class StudentListView(generics.ListAPIView):
     """
-    List all students (approved only or all)
-    
-    Flutter Connection: ManageStudentsScreen → GET /api/admin/students/
-    
-    Query params:
-    - ?approved=true → only approved students
-    - ?approved=false → only pending students
-    - no param → all students
+    List all students with advanced search and filtering (Sprint 4)
     """
-    
     serializer_class = StudentDetailSerializer
     permission_classes = [IsAdmin]
+    filter_backends = [DjangoFilterBackend, filters.SearchFilter, filters.OrderingFilter]
+    filterset_fields = ['is_approved', 'group', 'program', 'semester']
+    search_fields = ['username', 'first_name', 'last_name', 'email', 'student_id']
+    ordering_fields = ['username', 'created_at', 'student_id']
     
     def get_queryset(self):
-        queryset = User.objects.filter(role=User.STUDENT)
-        approved = self.request.query_params.get('approved')
-        
-        if approved == 'true':
-            queryset = queryset.filter(is_approved=True)
-        elif approved == 'false':
-            queryset = queryset.filter(is_approved=False)
-        
-        return queryset
+        return User.objects.filter(role=User.STUDENT)
 
 
 class AssignStudentToGroupView(APIView):
@@ -291,13 +297,12 @@ class AssignStudentToGroupView(APIView):
 
 class TeacherListView(generics.ListAPIView):
     """
-    List all teachers
-    
-    Flutter Connection: ManageTeachersScreen → GET /api/admin/teachers/
+    List all teachers with search (Sprint 4)
     """
-    
     serializer_class = TeacherDetailSerializer
     permission_classes = [IsAdmin]
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['username', 'first_name', 'last_name', 'email']
     queryset = User.objects.filter(role=User.TEACHER)
 
 
@@ -383,6 +388,9 @@ class CourseListCreateView(generics.ListCreateAPIView):
     
     queryset = Course.objects.all()
     permission_classes = [permissions.IsAuthenticated]
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['code', 'name']
+    ordering_fields = ['code', 'name', 'credits']
     
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -418,37 +426,27 @@ class CourseDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class TeacherCoursesView(generics.ListAPIView):
     """
-    Get courses assigned to current teacher
-    
-    Flutter Connection: TeacherHomeScreen/MyCoursesScreen → GET /api/courses/my-courses/
-    
-    Returns list of courses where current user is the teacher.
+    Get courses assigned to current teacher via CourseAssignment
     """
-    
-    serializer_class = CourseSerializer
+    serializer_class = CourseAssignmentSerializer
     permission_classes = [IsTeacher]
     
     def get_queryset(self):
-        return Course.objects.filter(teacher=self.request.user)
+        return CourseAssignment.objects.filter(teacher=self.request.user)
 
 
 class StudentCoursesView(generics.ListAPIView):
     """
-    Get courses for current student's group
-    
-    Flutter Connection: StudentHomeScreen/MyCoursesScreen → GET /api/courses/student-courses/
-    
-    Returns courses assigned to the student's group.
+    Get courses for current student's group via CourseAssignment
     """
-    
-    serializer_class = CourseSerializer
+    serializer_class = CourseAssignmentSerializer
     permission_classes = [IsStudent]
     
     def get_queryset(self):
         student = self.request.user
         if student.group:
-            return student.group.courses.all()
-        return Course.objects.none()
+            return CourseAssignment.objects.filter(group=student.group)
+        return CourseAssignment.objects.none()
 
 
 class AssignCourseToGroupView(APIView):
@@ -517,13 +515,7 @@ class GroupListCreateView(generics.ListCreateAPIView):
 class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
     """
     Get, Update, or Delete a specific group
-    
-    Flutter Connection:
-    - GET /api/groups/{id}/ → View group details
-    - PUT /api/groups/{id}/ → Admin updates group
-    - DELETE /api/groups/{id}/ → Admin deletes group
     """
-    
     queryset = Group.objects.all()
     serializer_class = GroupSerializer
     
@@ -531,6 +523,27 @@ class GroupDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ['PUT', 'PATCH', 'DELETE']:
             return [IsAdmin()]
         return [permissions.IsAuthenticated()]
+
+
+# ============================================================================
+# COURSE ASSIGNMENT VIEWS (Admin)
+# ============================================================================
+
+class CourseAssignmentListCreateView(generics.ListCreateAPIView):
+    """
+    Admin manages teachers assignment to courses and groups.
+    """
+    queryset = CourseAssignment.objects.all()
+    serializer_class = CourseAssignmentSerializer
+    permission_classes = [IsAdmin]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['group', 'teacher', 'course']
+
+
+class CourseAssignmentDetailView(generics.RetrieveUpdateDestroyAPIView):
+    queryset = CourseAssignment.objects.all()
+    serializer_class = CourseAssignmentSerializer
+    permission_classes = [IsAdmin]
 
 
 # ============================================================================
@@ -884,3 +897,63 @@ class StudentTimetableView(APIView):
             )
         
         return Response(TimetableSerializer(timetable).data)
+
+
+# ============================================================================
+# INTERACTION VIEWS (Messages & Notifications)
+# ============================================================================
+
+class NotificationListView(generics.ListAPIView):
+    """
+    List notifications for current user
+    
+    Flutter Connection: GET /api/notifications/
+    """
+    serializer_class = NotificationSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        return Notification.objects.filter(user=self.request.user)
+
+
+class NotificationMarkReadView(APIView):
+    """
+    Mark a notification as read
+    
+    Flutter Connection: POST /api/notifications/{id}/read/
+    """
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, pk):
+        notification = get_object_or_404(Notification, pk=pk, user=request.user)
+        notification.is_read = True
+        notification.save()
+        return Response({'status': 'notification marked as read'})
+
+
+class MessageListCreateView(generics.ListCreateAPIView):
+    """
+    List messages with a specific user or send a new message
+    
+    Flutter Connection:
+    - GET /api/messages/?with_user=2
+    - POST /api/messages/
+    """
+    serializer_class = MessageSerializer
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get_queryset(self):
+        other_user_id = self.request.query_params.get('with_user')
+        if not other_user_id:
+            # Return all conversations summary (simplified for now)
+            return Message.objects.filter(
+                Q(sender=self.request.user) | Q(receiver=self.request.user)
+            )
+        
+        return Message.objects.filter(
+            (Q(sender=self.request.user) & Q(receiver_id=other_user_id)) |
+            (Q(sender_id=other_user_id) & Q(receiver=self.request.user))
+        )
+
+    def perform_create(self, serializer):
+        serializer.save(sender=self.request.user)

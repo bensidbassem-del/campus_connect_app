@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'rest_framework_simplejwt',
     'rest_framework_simplejwt.token_blacklist',  # For logout functionality
     'corsheaders',  # Allows Flutter to make requests from different origin
+    'django_filters',  # For advanced search/filtering (Sprint 4)
     
     # Your app
     'api',  # Your single app folder

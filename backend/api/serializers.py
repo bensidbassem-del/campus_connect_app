@@ -9,7 +9,7 @@ When Django sends data → Serializer converts Python objects to JSON for Flutte
 
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable
+from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment, Message, Notification
 
 
 # ============================================================================
@@ -42,8 +42,9 @@ class UserSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'role', 'student_id', 'birth_date', 'phone', 'address',
-            'profile_picture', 'is_approved', 'group', 'group_name', 'group_id'
+            'role', 'student_id', 'program', 'semester', 'birth_date', 
+            'phone', 'address', 'profile_picture', 'is_approved', 
+            'rejection_reason', 'group', 'group_name', 'group_id'
         ]
         read_only_fields = ['id', 'role']
 
@@ -150,36 +151,39 @@ class LoginSerializer(serializers.Serializer):
 class CourseSerializer(serializers.ModelSerializer):
     """
     Course data for Flutter.
-    
-    Flutter's MyCoursesScreen receives list of these:
-    [
-        {
-            "id": 1,
-            "code": "DAM301",
-            "name": "Mobile Development",
-            "teacher_name": "Dr. Smith",
-            "credits": 3
-        },
-        ...
-    ]
     """
-    
-    teacher_name = serializers.CharField(source='teacher.get_full_name', read_only=True)
-    teacher_id = serializers.IntegerField(source='teacher.id', read_only=True)
     
     class Meta:
         model = Course
-        fields = ['id', 'code', 'name', 'description', 'credits', 'teacher', 'teacher_name', 'teacher_id']
+        fields = ['id', 'code', 'name', 'description', 'credits']
 
 
 class CourseCreateSerializer(serializers.ModelSerializer):
     """
-    Used when admin creates courses via Flutter's ManageCoursesScreen.
+    Used when admin creates courses.
     """
     
     class Meta:
         model = Course
-        fields = ['code', 'name', 'description', 'credits', 'teacher']
+        fields = ['code', 'name', 'description', 'credits']
+
+
+class CourseAssignmentSerializer(serializers.ModelSerializer):
+    """
+    The 'glue' that tells Flutter which teacher is teaching what to whom.
+    """
+    teacher_name = serializers.CharField(source='teacher.get_full_name', read_only=True)
+    course_name = serializers.CharField(source='course.name', read_only=True)
+    course_code = serializers.CharField(source='course.code', read_only=True)
+    group_name = serializers.CharField(source='group.name', read_only=True)
+
+    class Meta:
+        model = CourseAssignment
+        fields = [
+            'id', 'teacher', 'teacher_name',
+            'course', 'course_name', 'course_code',
+            'group', 'group_name', 'academic_year'
+        ]
 
 
 # ============================================================================
@@ -374,8 +378,8 @@ class StudentDetailSerializer(serializers.ModelSerializer):
         model = User
         fields = [
             'id', 'username', 'email', 'first_name', 'last_name',
-            'student_id', 'birth_date', 'phone', 'address',
-            'profile_picture', 'is_approved', 'group', 'group_name',
+            'student_id', 'program', 'semester', 'birth_date', 'phone', 'address',
+            'profile_picture', 'is_approved', 'rejection_reason', 'group', 'group_name',
             'grade_count'
         ]
     
@@ -389,7 +393,7 @@ class TeacherDetailSerializer(serializers.ModelSerializer):
     Detailed teacher info showing assigned courses.
     """
     
-    courses = CourseSerializer(source='teaching_courses', many=True, read_only=True)
+    courses = CourseAssignmentSerializer(source='teaching_assignments', many=True, read_only=True)
     course_count = serializers.SerializerMethodField()
     
     class Meta:
@@ -401,4 +405,27 @@ class TeacherDetailSerializer(serializers.ModelSerializer):
     
     def get_course_count(self, obj):
         """Number of courses this teacher is teaching"""
-        return obj.teaching_courses.count()
+        return obj.teaching_assignments.count()
+
+
+# ============================================================================
+# INTERACTION SERIALIZERS (Messages & Notifications)
+# ============================================================================
+
+class MessageSerializer(serializers.ModelSerializer):
+    """Serializer for P2P messages"""
+    sender_name = serializers.CharField(source='sender.get_full_name', read_only=True)
+    receiver_name = serializers.CharField(source='receiver.get_full_name', read_only=True)
+
+    class Meta:
+        model = Message
+        fields = ['id', 'sender', 'sender_name', 'receiver', 'receiver_name', 'content', 'timestamp', 'is_read']
+        read_only_fields = ['sender', 'timestamp']
+
+
+class NotificationSerializer(serializers.ModelSerializer):
+    """Serializer for system notifications"""
+    class Meta:
+        model = Notification
+        fields = ['id', 'user', 'title', 'message', 'notification_type', 'created_at', 'is_read']
+        read_only_fields = ['created_at']
