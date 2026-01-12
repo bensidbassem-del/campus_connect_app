@@ -228,4 +228,62 @@ class AdminService {
       throw Exception('Failed to create group');
     }
   }
+
+  Future<void> createTeacher({
+    required String username,
+    required String email,
+    required String password,
+    String? firstName,
+    String? lastName,
+  }) async {
+    final response = await _api.post('admin/teachers/create/', {
+      'username': username,
+      'email': email,
+      'password': password,
+      'first_name': firstName,
+      'last_name': lastName,
+    });
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create teacher');
+    }
+  }
+
+  Future<void> assignStudentToGroup(String studentId, String groupId) async {
+    final response = await _api.post('admin/assign-group/', {
+      'student_id': studentId,
+      'group_id': groupId,
+    });
+    if (response.statusCode != 200) {
+      throw Exception('Failed to assign student to group');
+    }
+  }
+
+  // --- Timetable Management ---
+
+  Future<void> uploadTimetable({
+    required String groupId,
+    required String title,
+    required String filePath,
+    required String semester,
+    required String academicYear,
+  }) async {
+    final streamResponse = await _api.uploadFile('timetables/', filePath, {
+      'group': groupId,
+      'title': title,
+      'semester': semester,
+      'academic_year': academicYear,
+      'is_active': 'true',
+    }, fileKey: 'image');
+    if (streamResponse.statusCode != 201) {
+      throw Exception('Failed to upload timetable');
+    }
+  }
+
+  Future<List<dynamic>> getTimetables() async {
+    final response = await _api.get('timetables/');
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    }
+    throw Exception('Failed to load timetables');
+  }
 }
