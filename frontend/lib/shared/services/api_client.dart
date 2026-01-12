@@ -122,11 +122,13 @@ class ApiClient {
   Future<http.StreamedResponse> uploadFile(
     String endpoint,
     String filePath,
-    Map<String, String> fields,
-  ) async {
+    Map<String, String> fields, {
+    String fileKey = 'file',
+  }) async {
     final token = await _getToken();
 
-    var request = http.MultipartRequest('POST', Uri.parse('$baseUrl$endpoint'));
+    final url = _buildUrl(endpoint);
+    var request = http.MultipartRequest('POST', Uri.parse(url));
 
     // Add authorization header
     if (token != null) {
@@ -134,7 +136,7 @@ class ApiClient {
     }
 
     // Add file
-    request.files.add(await http.MultipartFile.fromPath('file', filePath));
+    request.files.add(await http.MultipartFile.fromPath(fileKey, filePath));
 
     // Add other fields
     request.fields.addAll(fields);

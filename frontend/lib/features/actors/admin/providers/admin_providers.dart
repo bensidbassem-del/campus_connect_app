@@ -39,6 +39,32 @@ class UsersNotifier extends AsyncNotifier<List<AppUser>> {
     await ref.read(adminServiceProvider).deleteUser(id, role);
     await refresh();
   }
+
+  Future<void> createTeacher({
+    required String username,
+    required String email,
+    required String password,
+    String? firstName,
+    String? lastName,
+  }) async {
+    await ref
+        .read(adminServiceProvider)
+        .createTeacher(
+          username: username,
+          email: email,
+          password: password,
+          firstName: firstName,
+          lastName: lastName,
+        );
+    await refresh();
+  }
+
+  Future<void> assignToGroup(String studentId, String groupId) async {
+    await ref
+        .read(adminServiceProvider)
+        .assignStudentToGroup(studentId, groupId);
+    await refresh();
+  }
 }
 
 // --- Courses Provider ---
@@ -79,6 +105,62 @@ final adminGroupsProvider =
 class AdminGroupsNotifier extends AsyncNotifier<List<AcademicGroup>> {
   @override
   Future<List<AcademicGroup>> build() async {
+    return _fetch();
+  }
+
+  Future<List<AcademicGroup>> _fetch() async {
     return await ref.read(adminServiceProvider).getGroups();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _fetch());
+  }
+
+  Future<void> addGroup(String name, String academicYear) async {
+    await ref.read(adminServiceProvider).createGroup(name, academicYear);
+    await refresh();
+  }
+}
+
+// --- Timetables Provider ---
+
+final adminTimetablesProvider =
+    AsyncNotifierProvider<AdminTimetablesNotifier, List<dynamic>>(() {
+      return AdminTimetablesNotifier();
+    });
+
+class AdminTimetablesNotifier extends AsyncNotifier<List<dynamic>> {
+  @override
+  Future<List<dynamic>> build() async {
+    return _fetch();
+  }
+
+  Future<List<dynamic>> _fetch() async {
+    return await ref.read(adminServiceProvider).getTimetables();
+  }
+
+  Future<void> refresh() async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _fetch());
+  }
+
+  Future<void> uploadTimetable({
+    required String groupId,
+    required String title,
+    required String filePath,
+    required String semester,
+    required String academicYear,
+  }) async {
+    await ref
+        .read(adminServiceProvider)
+        .uploadTimetable(
+          groupId: groupId,
+          title: title,
+          filePath: filePath,
+          semester: semester,
+          academicYear: academicYear,
+        );
+    await refresh();
   }
 }
