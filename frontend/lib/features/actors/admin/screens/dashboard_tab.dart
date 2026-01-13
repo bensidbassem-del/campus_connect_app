@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../providers/admin_providers.dart';
+import 'admin_style.dart';
 
 class DashboardTab extends ConsumerWidget {
   const DashboardTab({super.key});
@@ -16,33 +17,30 @@ class DashboardTab extends ConsumerWidget {
     return Scaffold(
       backgroundColor: Colors.transparent, // Parent provides background
       body: SingleChildScrollView(
-        padding: const EdgeInsets.fromLTRB(
-          24,
-          16,
-          24,
-          100,
-        ), // Bottom padding for floating bar
+        padding: const EdgeInsets.fromLTRB(24, 0, 24, 100),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            const SizedBox(height: 16),
             _buildWelcomeMessage(),
-            const SizedBox(height: 32),
+            const SizedBox(height: 16),
 
             _buildSectionTitle('Overview'),
-            const SizedBox(height: 16),
+            const SizedBox(height: 4),
             usersAsync.when(
               data: (users) {
+                final pendingCount = users
+                    .where((u) => !u.isApproved && u.role == 'STUDENT')
+                    .length;
                 final studentCount = users
-                    .where((u) => u.role == 'STUDENT')
+                    .where((u) => u.isApproved && u.role == 'STUDENT')
                     .length;
                 final teacherCount = users
                     .where((u) => u.role == 'TEACHER')
                     .length;
-                final pendingCount = users
-                    .where((u) => !u.isApproved && u.role == 'STUDENT')
-                    .length;
 
                 return GridView.count(
+                  padding: EdgeInsets.zero,
                   shrinkWrap: true,
                   physics: const NeverScrollableScrollPhysics(),
                   crossAxisCount: 2,
@@ -118,6 +116,8 @@ class DashboardTab extends ConsumerWidget {
               'Verify new student registrations',
               Icons.vignette_rounded,
               const Color(0xFF4A80F0),
+              onTap: () =>
+                  ref.read(adminTabProvider.notifier).state = 2, // Users
             ),
             _buildModernActionTile(
               context,
@@ -125,6 +125,8 @@ class DashboardTab extends ConsumerWidget {
               'Update group timetables',
               Icons.calendar_month_rounded,
               const Color(0xFF8B5CF6),
+              onTap: () =>
+                  ref.read(adminTabProvider.notifier).state = 1, // Academy
             ),
           ],
         ),
@@ -136,22 +138,16 @@ class DashboardTab extends ConsumerWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const Text(
+        Text(
           'Welcome back,',
-          style: TextStyle(
+          style: AdminStyle.body.copyWith(
             fontSize: 16,
-            color: Color(0xFF64748B),
             fontWeight: FontWeight.w500,
           ),
         ),
-        const Text(
+        Text(
           'Administrator',
-          style: TextStyle(
-            fontSize: 28,
-            fontWeight: FontWeight.w900,
-            color: Color(0xFF0F172A),
-            letterSpacing: -1,
-          ),
+          style: AdminStyle.header.copyWith(fontSize: 28, letterSpacing: -1),
         ),
       ],
     );
@@ -159,12 +155,12 @@ class DashboardTab extends ConsumerWidget {
 
   Widget _buildSectionTitle(String title) {
     return Text(
-      title.toUpperCase(),
-      style: const TextStyle(
-        fontSize: 12,
-        fontWeight: FontWeight.w800,
-        letterSpacing: 1.5,
-        color: Color(0xFF94A3B8),
+      title, // Removed toUpperCase()
+      style: AdminStyle.subHeader.copyWith(
+        fontSize: 14,
+        color: const Color(0xFF94A3B8), // Muted color
+        fontWeight: FontWeight.w700,
+        letterSpacing: 0, // Removed wide spacing
       ),
     );
   }
@@ -232,55 +228,59 @@ class DashboardTab extends ConsumerWidget {
     String title,
     String subtitle,
     IconData icon,
-    Color color,
-  ) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(20),
-        border: Border.all(color: const Color(0xFFF1F5F9)),
-      ),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: color.withAlpha(26),
-              borderRadius: BorderRadius.circular(16),
+    Color color, {
+    VoidCallback? onTap,
+  }) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        margin: const EdgeInsets.only(bottom: 16),
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(color: const Color(0xFFF1F5F9)),
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withAlpha(26),
+                borderRadius: BorderRadius.circular(16),
+              ),
+              child: Icon(icon, color: color, size: 24),
             ),
-            child: Icon(icon, color: color, size: 24),
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF1E293B),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    title,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF1E293B),
+                    ),
                   ),
-                ),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF64748B),
+                  Text(
+                    subtitle,
+                    style: const TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF64748B),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ),
-          const Icon(
-            Icons.arrow_forward_ios_rounded,
-            color: Color(0xFFCBD5E1),
-            size: 16,
-          ),
-        ],
+            const Icon(
+              Icons.arrow_forward_ios_rounded,
+              color: Color(0xFFCBD5E1),
+              size: 16,
+            ),
+          ],
+        ),
       ),
     );
   }

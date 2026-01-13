@@ -7,7 +7,7 @@ URL Pattern in Flutter:
 http://your-server/api/endpoint-name/
 """
 
-from rest_framework import generics, status, permissions, filters
+from rest_framework import generics, status, permissions, filters, viewsets
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework_simplejwt.tokens import RefreshToken
@@ -15,7 +15,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import Q
 from django_filters.rest_framework import DjangoFilterBackend
 
-from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment, Message, Notification
+from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment, Message, Notification, ScheduleSession
 from .serializers import *
 from .permissions import IsAdmin, IsTeacher, IsStudent, IsApprovedStudent
 
@@ -188,47 +188,40 @@ class PendingStudentsView(generics.ListAPIView):
 
 class ApproveStudentView(APIView):
     """
-    Approve a student registration
-    
-    Flutter Connection: ManageStudentsScreen → POST /api/admin/approve-student/{id}/
-    
-    Admin clicks "Approve" button in Flutter → this sets is_approved=True
-    Now student can login.
+    Approve a student or teacher registration
     """
-    
     permission_classes = [IsAdmin]
 
     def post(self, request, pk):
         try:
-            student = User.objects.get(pk=pk, role=User.STUDENT)
-            student.is_approved = True
-            student.rejection_reason = None # Clear any previous rejection
-            student.save()
+            # Generalize to allow approving any role
+            user = User.objects.get(pk=pk)
+            user.is_approved = True
+            user.rejection_reason = None
+            user.save()
             return Response({
-                'message': 'Student approved successfully',
-                'student': UserSerializer(student).data
+                'message': f'{user.role.capitalize()} approved successfully',
+                'user': UserSerializer(user).data
             })
         except User.DoesNotExist:
-            return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
     
 class RejectStudentView(APIView):
     """
-    Reject a student registration with a reason.
-    
-    Flutter Connection: ManageStudentsScreen → POST /api/admin/reject-student/{id}/
+    Reject a student or teacher registration with a reason.
     """
     permission_classes = [IsAdmin]
 
     def post(self, request, pk):
         reason = request.data.get('reason', 'Requirements not met')
         try:
-            student = User.objects.get(pk=pk, role=User.STUDENT)
-            student.is_approved = False
-            student.rejection_reason = reason
-            student.save()
-            return Response({'message': 'Student rejected', 'reason': reason})
+            user = User.objects.get(pk=pk)
+            user.is_approved = False
+            user.rejection_reason = reason
+            user.save()
+            return Response({'message': f'{user.role.capitalize()} rejected', 'reason': reason})
         except User.DoesNotExist:
-            return Response({'error': 'Student not found'}, status=status.HTTP_404_NOT_FOUND)
+            return Response({'error': 'User not found'}, status=status.HTTP_404_NOT_FOUND)
 
 
 class DeleteStudentView(generics.DestroyAPIView):
@@ -957,3 +950,16 @@ class MessageListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         serializer.save(sender=self.request.user)
+
+
+class ScheduleSessionViewSet(viewsets.ModelViewSet):
+    """
+    CRUD for class schedule sessions.
+    
+    Flutter Connection: AdminScheduleTab → /api/schedule/
+    """
+    queryset = ScheduleSession.objects.all()
+    serializer_class = ScheduleSessionSerializer
+    permission_classes = [IsAdmin]
+    filter_backends = [DjangoFilterBackend]
+    filterset_fields = ['assignment__group', 'day']

@@ -173,4 +173,10 @@ urlpatterns = [
     path('notifications/', views.NotificationListView.as_view(), name='notifications'),
     path('notifications/<int:pk>/read/', views.NotificationMarkReadView.as_view(), name='notification-mark-read'),
     path('messages/', views.MessageListCreateView.as_view(), name='messages'),
+    
+    # ========================================================================
+    # SCHEDULE ENDPOINTS (Dynamic Timetable)
+    # ========================================================================
+    path('schedule/', views.ScheduleSessionViewSet.as_view({'get': 'list', 'post': 'create'}), name='schedule-list'),
+    path('schedule/<int:pk>/', views.ScheduleSessionViewSet.as_view({'get': 'retrieve', 'put': 'update', 'patch': 'partial_update', 'delete': 'destroy'}), name='schedule-detail'),
 ]

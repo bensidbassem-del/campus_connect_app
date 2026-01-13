@@ -10,16 +10,20 @@ class CourseAssignment {
   final String teacherName;
   final String courseName;
   final String courseCode;
+  final String groupId;
   final String groupName;
   final String academicYear;
+  final List<ScheduleSession> sessions;
 
   CourseAssignment({
     required this.id,
     required this.teacherName,
     required this.courseName,
     required this.courseCode,
+    required this.groupId,
     required this.groupName,
     required this.academicYear,
+    this.sessions = const [],
   });
 
   factory CourseAssignment.fromJson(Map<String, dynamic> json) {
@@ -29,8 +33,68 @@ class CourseAssignment {
       courseName: json['course_name'] ?? '',
       courseCode: json['course_code'] ?? '',
       groupName: json['group_name'] ?? '',
+      groupId: json['group_id']?.toString() ?? '',
       academicYear: json['academic_year'] ?? '',
+      sessions: (json['sessions'] as List? ?? [])
+          .map((s) => ScheduleSession.fromJson(s))
+          .toList(),
     );
+  }
+}
+
+class ScheduleSession {
+  final int? id;
+  final int? assignmentId;
+  final String? courseCode;
+  final String? courseName;
+  final String? groupName;
+  final String? teacherName;
+  final String day;
+  final String startTime;
+  final String endTime;
+  final String room;
+  final String sessionType;
+
+  ScheduleSession({
+    this.id,
+    this.assignmentId,
+    this.courseCode,
+    this.courseName,
+    this.groupName,
+    this.teacherName,
+    required this.day,
+    required this.startTime,
+    required this.endTime,
+    required this.room,
+    required this.sessionType,
+  });
+
+  factory ScheduleSession.fromJson(Map<String, dynamic> json) {
+    return ScheduleSession(
+      id: json['id'],
+      assignmentId: json['assignment_id'],
+      courseCode: json['course_code'],
+      courseName: json['course_name'],
+      groupName: json['group_name'],
+      teacherName: json['teacher_name'],
+      day: json['day'],
+      startTime: json['start_time'],
+      endTime: json['end_time'],
+      room: json['room'],
+      sessionType: json['session_type'],
+    );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      if (id != null) 'id': id,
+      if (assignmentId != null) 'assignment_id': assignmentId,
+      'day': day,
+      'start_time': startTime,
+      'end_time': endTime,
+      'room': room,
+      'session_type': sessionType,
+    };
   }
 }
 
@@ -285,5 +349,63 @@ class AdminService {
       return json.decode(response.body);
     }
     throw Exception('Failed to load timetables');
+  }
+
+  // --- Course Deletion ---
+
+  Future<void> deleteCourse(String id) async {
+    final response = await _api.delete('courses/$id/');
+    if (response.statusCode != 204 && response.statusCode != 200) {
+      throw Exception('Failed to delete course');
+    }
+  }
+
+  // --- Messaging ---
+
+  Future<void> sendMessage(String receiverId, String content) async {
+    final response = await _api.post('messages/', {
+      'receiver': receiverId,
+      'content': content,
+    });
+    if (response.statusCode != 201) {
+      throw Exception('Failed to send message');
+    }
+  }
+
+  // --- Schedule Management ---
+
+  Future<List<ScheduleSession>> getSchedule({
+    String? groupId,
+    String? day,
+  }) async {
+    final queryParams = <String, String>{};
+    if (groupId != null) queryParams['assignment__group'] = groupId;
+    if (day != null) queryParams['day'] = day;
+
+    final response = await _api.get('schedule/', queryParams: queryParams);
+    if (response.statusCode == 200) {
+      final decoded = json.decode(response.body);
+      final List<dynamic> data = decoded is Map
+          ? (decoded['results'] ?? [])
+          : decoded;
+      return data.map((json) => ScheduleSession.fromJson(json)).toList();
+    }
+    throw Exception('Failed to load schedule');
+  }
+
+  Future<void> createScheduleSession(ScheduleSession session) async {
+    final response = await _api.post('schedule/', session.toJson());
+    if (response.statusCode != 201) {
+      throw Exception('Failed to create schedule session');
+    }
+  }
+
+  Future<void> deleteScheduleSession(int id) async {
+    final response = await _api.delete('schedule/$id/');
+    if (response.statusCode != 24 &&
+        response.statusCode != 204 &&
+        response.statusCode != 200) {
+      throw Exception('Failed to delete schedule session');
+    }
   }
 }

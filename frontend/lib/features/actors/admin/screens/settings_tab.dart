@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import '../providers/admin_providers.dart';
 import '../../../../shared/services/auth_service.dart';
+import 'admin_style.dart';
 
 class SettingsTab extends ConsumerStatefulWidget {
   const SettingsTab({super.key});
@@ -10,37 +12,42 @@ class SettingsTab extends ConsumerStatefulWidget {
 }
 
 class _SettingsTabState extends ConsumerState<SettingsTab> {
-  static const primaryBlue = Color(0xFF4A80F0);
+  static const primaryBlue = Color(
+    0xFF4A80F0,
+  ); // Consider replacing with AdminStyle.primary
 
   @override
   Widget build(BuildContext context) {
+    final settings = ref.watch(adminSettingsProvider);
+    final settingsNotifier = ref.read(adminSettingsProvider.notifier);
+
     return Scaffold(
       backgroundColor: Colors.transparent,
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
         children: [
-          _buildHeading('ACCOUNT IDENTITY'),
+          _buildHeading('Account Identity'),
           _buildCard(
             child: ListTile(
               leading: Container(
                 padding: const EdgeInsets.all(10),
                 decoration: BoxDecoration(
-                  color: primaryBlue.withAlpha(26),
+                  color: AdminStyle.primary.withOpacity(0.1),
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Icon(
                   Icons.shield_rounded,
-                  color: primaryBlue,
+                  color: AdminStyle.primary,
                   size: 22,
                 ),
               ),
-              title: const Text(
+              title: Text(
                 'Admin Authority',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                style: AdminStyle.subHeader.copyWith(fontSize: 15),
               ),
-              subtitle: const Text(
+              subtitle: Text(
                 'admin@campus.edu',
-                style: TextStyle(fontSize: 12),
+                style: AdminStyle.body.copyWith(fontSize: 12),
               ),
               trailing: const Icon(
                 Icons.verified_rounded,
@@ -51,47 +58,43 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
           ),
           const SizedBox(height: 32),
 
-          _buildHeading('SYSTEM PREFERENCES'),
+          _buildHeading('System Preferences'),
           _buildCard(
             child: Column(
               children: [
-                _buildToggle('Push Notifications', 'Real-time alerts', true),
+                _buildToggle(
+                  'Push Notifications',
+                  'Real-time alerts',
+                  settings.pushNotifications,
+                  (v) => settingsNotifier.togglePushNotifications(),
+                ),
                 const Divider(height: 1, indent: 60),
-                _buildToggle('Cloud Sync', 'Automatic data backup', false),
+                _buildToggle(
+                  'Cloud Sync',
+                  'Automatic data backup',
+                  settings.cloudSync,
+                  (v) => settingsNotifier.toggleCloudSync(),
+                ),
               ],
             ),
           ),
           const SizedBox(height: 16),
           SwitchListTile(
             contentPadding: EdgeInsets.zero,
-            title: const Text('New Student Notifications'),
-            subtitle: const Text('Alert when students register'),
-            activeThumbColor: primaryBlue,
-            value: true,
-            onChanged: (val) {},
+            title: Text(
+              'New Student Notifications',
+              style: AdminStyle.subHeader.copyWith(fontSize: 15),
+            ),
+            subtitle: Text(
+              'Alert when students register',
+              style: AdminStyle.body.copyWith(fontSize: 12),
+            ),
+            activeColor: AdminStyle.primary,
+            value: settings.newStudentAlerts,
+            onChanged: (val) => settingsNotifier.toggleNewStudentAlerts(),
           ),
           const Divider(),
-          const SizedBox(height: 32),
-
-          _buildHeading('SYSTEM INFRASTRUCTURE'),
-          _buildCard(
-            child: Column(
-              children: [
-                _buildInfo(
-                  'Version Build',
-                  '2.4.0-Pro',
-                  Icons.rocket_launch_rounded,
-                ),
-                const Divider(height: 1, indent: 60),
-                _buildInfo(
-                  'API Connectivity',
-                  'Operational',
-                  Icons.wifi_tethering_rounded,
-                  status: true,
-                ),
-              ],
-            ),
-          ),
+          const Divider(),
           const SizedBox(height: 48),
 
           _buildActionCard(
@@ -112,11 +115,11 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
       padding: const EdgeInsets.only(left: 8, bottom: 12),
       child: Text(
         title,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w800,
-          letterSpacing: 1.5,
-          color: Color(0xFF94A3B8),
+        style: AdminStyle.subHeader.copyWith(
+          fontSize: 14,
+          color: const Color(0xFF94A3B8),
+          fontWeight: FontWeight.w700,
+          letterSpacing: 0,
         ),
       ),
     );
@@ -139,39 +142,21 @@ class _SettingsTabState extends ConsumerState<SettingsTab> {
     );
   }
 
-  Widget _buildToggle(String title, String subtitle, bool val) {
+  Widget _buildToggle(
+    String title,
+    String subtitle,
+    bool val,
+    Function(bool)? onChanged,
+  ) {
     return SwitchListTile(
       value: val,
-      onChanged: (v) {},
+      onChanged: onChanged,
       activeThumbColor: primaryBlue,
       title: Text(
         title,
         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
       ),
       subtitle: Text(subtitle, style: const TextStyle(fontSize: 11)),
-    );
-  }
-
-  Widget _buildInfo(
-    String title,
-    String value,
-    IconData icon, {
-    bool status = false,
-  }) {
-    return ListTile(
-      leading: Icon(icon, color: const Color(0xFF64748B), size: 22),
-      title: Text(
-        title,
-        style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
-      ),
-      trailing: Text(
-        value,
-        style: TextStyle(
-          fontWeight: FontWeight.w900,
-          fontSize: 12,
-          color: status ? Colors.green : const Color(0xFF1E293B),
-        ),
-      ),
     );
   }
 

@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../authentication/models/user_model.dart';
 import '../providers/admin_providers.dart';
-import '../../../../shared/services/api_client.dart';
+import 'admin_style.dart';
 
 class UserManagementTab extends ConsumerStatefulWidget {
   const UserManagementTab({super.key});
@@ -15,8 +15,6 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
   int _selectedFilter = 0;
   final List<String> _filters = ['All', 'New Req.', 'Students', 'Teachers'];
   final _searchController = TextEditingController();
-
-  static const primaryBlue = Color(0xFF4A80F0);
 
   @override
   void dispose() {
@@ -72,32 +70,25 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                 );
               },
               loading: () => const Center(
-                child: CircularProgressIndicator(color: primaryBlue),
+                child: CircularProgressIndicator(color: AdminStyle.primary),
               ),
-              error: (e, st) => Center(child: Text('Error: $e')),
+              error: (e, st) =>
+                  Center(child: Text('Error: $e', style: AdminStyle.body)),
             ),
           ),
         ],
       ),
       floatingActionButton: _selectedFilter == 3
           ? Padding(
-              padding: const EdgeInsets.only(
-                bottom: 70,
-              ), // Move up for floating bar
+              padding: const EdgeInsets.only(bottom: 70),
               child: FloatingActionButton.extended(
                 onPressed: _showCreateTeacherDialog,
-                backgroundColor: const Color(0xFF1E293B),
+                backgroundColor: AdminStyle.textPrimary,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
                 icon: const Icon(Icons.add_circle, color: Colors.white),
-                label: const Text(
-                  'Add Teacher',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
+                label: Text('Add Teacher', style: AdminStyle.button),
               ),
             )
           : null,
@@ -107,35 +98,28 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
   Widget _buildTopNav() {
     return Container(
       padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 24),
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.only(
+      decoration: BoxDecoration(
+        color: AdminStyle.surface,
+        borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(32),
           bottomRight: Radius.circular(32),
         ),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 15,
+            offset: const Offset(0, 5),
+          ),
+        ],
       ),
       child: Column(
         children: [
           TextField(
             controller: _searchController,
             onChanged: (v) => setState(() {}),
-            decoration: InputDecoration(
-              hintText: 'Search community...',
-              hintStyle: const TextStyle(
-                color: Color(0xFF94A3B8),
-                fontSize: 14,
-              ),
-              prefixIcon: const Icon(Icons.search_rounded, color: primaryBlue),
-              filled: true,
-              fillColor: const Color(0xFFF8FAFF),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(20),
-                borderSide: BorderSide.none,
-              ),
-              contentPadding: const EdgeInsets.symmetric(
-                horizontal: 20,
-                vertical: 15,
-              ),
+            decoration: AdminStyle.inputDec(
+              'Search community...',
+              icon: Icons.search_rounded,
             ),
           ),
           const SizedBox(height: 16),
@@ -150,13 +134,13 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                     label: Text(_filters[index]),
                     selected: active,
                     onSelected: (v) => setState(() => _selectedFilter = index),
-                    selectedColor: primaryBlue,
+                    selectedColor: AdminStyle.primary,
                     labelStyle: TextStyle(
-                      color: active ? Colors.white : const Color(0xFF64748B),
+                      color: active ? Colors.white : AdminStyle.textSecondary,
                       fontWeight: FontWeight.bold,
                       fontSize: 12,
                     ),
-                    backgroundColor: const Color(0xFFF1F5F9),
+                    backgroundColor: AdminStyle.bg,
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
@@ -177,15 +161,16 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AdminStyle.surface,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withAlpha(10),
-            blurRadius: 15,
-            offset: const Offset(0, 5),
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 12,
+            offset: const Offset(0, 4),
           ),
         ],
+        border: Border.all(color: Colors.grey.shade100),
       ),
       child: Row(
         children: [
@@ -196,7 +181,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
               gradient: LinearGradient(
                 colors: user.role == 'TEACHER'
                     ? [const Color(0xFF1E293B), const Color(0xFF475569)]
-                    : [const Color(0xFF4A80F0), const Color(0xFF6366F1)],
+                    : [const Color(0xFF4F46E5), const Color(0xFF6366F1)],
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
               ),
@@ -219,19 +204,9 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
               children: [
                 Text(
                   user.name,
-                  style: const TextStyle(
-                    fontWeight: FontWeight.w800,
-                    fontSize: 16,
-                    color: Color(0xFF0F172A),
-                  ),
+                  style: AdminStyle.subHeader.copyWith(fontSize: 16),
                 ),
-                Text(
-                  user.email,
-                  style: const TextStyle(
-                    color: Color(0xFF64748B),
-                    fontSize: 12,
-                  ),
-                ),
+                Text(user.email, style: AdminStyle.body.copyWith(fontSize: 12)),
                 const SizedBox(height: 6),
                 _buildDynamicBadge(user),
               ],
@@ -246,8 +221,8 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
   Widget _buildDynamicBadge(AppUser user) {
     String label = user.role;
     Color color = user.role == 'TEACHER'
-        ? const Color(0xFF1E293B)
-        : primaryBlue;
+        ? AdminStyle.textPrimary
+        : AdminStyle.primary;
 
     if (user.role == 'STUDENT' && !user.isApproved) {
       label = 'PENDING';
@@ -257,7 +232,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
       decoration: BoxDecoration(
-        color: color.withAlpha(26),
+        color: color.withOpacity(0.1),
         borderRadius: BorderRadius.circular(10),
       ),
       child: Text(
@@ -273,21 +248,21 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
   }
 
   Widget _buildActionButtons(AppUser user) {
-    if (!user.isApproved &&
-        user.role == 'STUDENT' &&
+    if (user.role == 'STUDENT' &&
+        !user.isApproved &&
         user.rejectionReason == null) {
       return Row(
         mainAxisSize: MainAxisSize.min,
         children: [
           _buildRoundAction(
             Icons.check_circle_rounded,
-            Colors.green,
+            AdminStyle.secondary,
             () => ref.read(usersProvider.notifier).approveStudent(user.id),
           ),
           const SizedBox(width: 8),
           _buildRoundAction(
             Icons.cancel_rounded,
-            Colors.red,
+            AdminStyle.error,
             () => _showRejectDialog(user.id),
           ),
         ],
@@ -300,14 +275,14 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
         if (user.isApproved) ...[
           _buildRoundAction(
             Icons.chat_bubble_rounded,
-            primaryBlue,
+            AdminStyle.primary,
             () => _showSendMessageDialog(user),
           ),
           if (user.role == 'STUDENT') ...[
             const SizedBox(width: 8),
             _buildRoundAction(
               Icons.group_add_rounded,
-              primaryBlue,
+              AdminStyle.primary,
               () => _showAssignGroupDialog(user),
             ),
           ],
@@ -328,7 +303,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       child: Container(
         padding: const EdgeInsets.all(8),
         decoration: BoxDecoration(
-          color: color.withAlpha(26),
+          color: color.withOpacity(0.1),
           shape: BoxShape.circle,
         ),
         child: Icon(icon, color: color, size: 20),
@@ -347,19 +322,16 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
             color: Colors.grey[300],
           ),
           const SizedBox(height: 16),
-          const Text(
+          Text(
             'No members found',
-            style: TextStyle(
-              color: Color(0xFF94A3B8),
-              fontWeight: FontWeight.bold,
-            ),
+            style: AdminStyle.body.copyWith(fontWeight: FontWeight.bold),
           ),
         ],
       ),
     );
   }
 
-  // --- Dialogs slightly updated with rounded corners ---
+  // --- Dialogs ---
 
   void _showSendMessageDialog(AppUser receiver) {
     final controller = TextEditingController();
@@ -369,29 +341,21 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         title: Text(
           'Message to ${receiver.name}',
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: AdminStyle.header.copyWith(fontSize: 18),
         ),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            hintText: 'Type something nice...',
-            filled: true,
-            fillColor: const Color(0xFFF8FAFF),
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(20),
-              borderSide: BorderSide.none,
-            ),
-          ),
+          decoration: AdminStyle.inputDec('Type something nice...'),
           maxLines: 4,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Maybe later'),
+            child: Text('Maybe later', style: AdminStyle.body),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: primaryBlue,
+              backgroundColor: AdminStyle.primary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -400,25 +364,21 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
             onPressed: () async {
               final nav = Navigator.of(context);
               final messenger = ScaffoldMessenger.of(context);
-              await ref.read(apiClientProvider).post('messages/', {
-                'receiver': receiver.id,
-                'content': controller.text,
-              });
-              if (!mounted) {
-                return;
+              try {
+                await ref
+                    .read(usersProvider.notifier)
+                    .sendMessage(receiver.id, controller.text);
+                nav.pop();
+                messenger.showSnackBar(
+                  const SnackBar(content: Text('Message delivered!')),
+                );
+              } catch (e) {
+                messenger.showSnackBar(
+                  SnackBar(content: Text('Failed to send message: $e')),
+                );
               }
-              nav.pop();
-              messenger.showSnackBar(
-                const SnackBar(content: Text('Message delivered!')),
-              );
             },
-            child: const Text(
-              'Send Chat',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text('Send Chat', style: AdminStyle.button),
           ),
         ],
       ),
@@ -436,9 +396,9 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        title: const Text(
+        title: Text(
           'New Professor',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: AdminStyle.header.copyWith(fontSize: 18),
         ),
         content: SingleChildScrollView(
           child: Column(
@@ -460,11 +420,11 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: AdminStyle.body),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFF1E293B),
+              backgroundColor: AdminStyle.textPrimary,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -482,13 +442,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                   );
               Navigator.pop(context);
             },
-            child: const Text(
-              'Create Profile',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text('Create Profile', style: AdminStyle.button),
           ),
         ],
       ),
@@ -506,16 +460,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       child: TextField(
         controller: c,
         obscureText: obscure,
-        decoration: InputDecoration(
-          labelText: label,
-          prefixIcon: Icon(icon, size: 20),
-          filled: true,
-          fillColor: const Color(0xFFF8FAFF),
-          border: OutlineInputBorder(
-            borderRadius: BorderRadius.circular(15),
-            borderSide: BorderSide.none,
-          ),
-        ),
+        decoration: AdminStyle.inputDec(label, icon: icon),
       ),
     );
   }
@@ -528,7 +473,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
         title: Text(
           'Assign ${student.name.split(" ")[0]}',
-          style: const TextStyle(fontWeight: FontWeight.w800),
+          style: AdminStyle.header.copyWith(fontSize: 18),
         ),
         content: groupsAsync.when(
           data: (groups) {
@@ -546,9 +491,12 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                     ),
                     title: Text(
                       group.name,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
+                      style: AdminStyle.subHeader.copyWith(fontSize: 14),
                     ),
-                    subtitle: Text(group.academicYear),
+                    subtitle: Text(
+                      group.academicYear,
+                      style: AdminStyle.body.copyWith(fontSize: 12),
+                    ),
                     onTap: () {
                       ref
                           .read(usersProvider.notifier)
@@ -573,31 +521,25 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        title: const Text(
+        title: Text(
           'Reject Registration',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: AdminStyle.header.copyWith(fontSize: 18),
         ),
         content: TextField(
           controller: controller,
-          decoration: InputDecoration(
-            hintText: 'Reason for rejection',
-            filled: true,
-            fillColor: Colors.red[50],
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(15),
-              borderSide: BorderSide.none,
-            ),
-          ),
+          decoration: AdminStyle.inputDec(
+            'Reason for rejection',
+          ).copyWith(fillColor: Colors.red[50]),
           maxLines: 2,
         ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: AdminStyle.body),
           ),
           ElevatedButton(
             style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
+              backgroundColor: AdminStyle.error,
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(15),
               ),
@@ -608,13 +550,7 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
                   .rejectStudent(id, controller.text);
               Navigator.pop(context);
             },
-            child: const Text(
-              'Confirm Reject',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+            child: Text('Confirm Reject', style: AdminStyle.button),
           ),
         ],
       ),
@@ -626,24 +562,27 @@ class _UserManagementTabState extends ConsumerState<UserManagementTab> {
       context: context,
       builder: (context) => AlertDialog(
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(25)),
-        title: const Text(
+        title: Text(
           'Delete User',
-          style: TextStyle(fontWeight: FontWeight.w800),
+          style: AdminStyle.header.copyWith(fontSize: 18),
         ),
-        content: Text('Delete ${user.name} permanently?'),
+        content: Text(
+          'Delete ${user.name} permanently?',
+          style: AdminStyle.body,
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
+            child: Text('Cancel', style: AdminStyle.body),
           ),
           TextButton(
             onPressed: () {
               ref.read(usersProvider.notifier).deleteUser(user.id, user.role);
               Navigator.pop(context);
             },
-            child: const Text(
+            child: Text(
               'Delete permanently',
-              style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+              style: AdminStyle.button.copyWith(color: AdminStyle.error),
             ),
           ),
         ],

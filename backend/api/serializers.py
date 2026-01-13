@@ -9,7 +9,7 @@ When Django sends data → Serializer converts Python objects to JSON for Flutte
 
 from rest_framework import serializers
 from django.contrib.auth import authenticate
-from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment, Message, Notification
+from .models import User, Course, Group, Grade, Attendance, CourseFile, Timetable, CourseAssignment, Message, Notification, ScheduleSession
 
 
 # ============================================================================
@@ -35,8 +35,8 @@ class UserSerializer(serializers.ModelSerializer):
     """
     
     # Include group details when serializing
-    group_name = serializers.CharField(source='group.name', read_only=True)
-    group_id = serializers.IntegerField(source='group.id', read_only=True)
+    group_name = serializers.SerializerMethodField()
+    group_id = serializers.SerializerMethodField()
     
     class Meta:
         model = User
@@ -47,6 +47,12 @@ class UserSerializer(serializers.ModelSerializer):
             'rejection_reason', 'group', 'group_name', 'group_id'
         ]
         read_only_fields = ['id', 'role']
+
+    def get_group_name(self, obj):
+        return obj.group.name if obj.group else None
+
+    def get_group_id(self, obj):
+        return obj.group.id if obj.group else None
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -86,11 +92,13 @@ class RegisterSerializer(serializers.ModelSerializer):
         """
         Create new user with hashed password.
         is_approved defaults to False - admin must approve before login works.
+        IMPORTANT: Public registration is ONLY for Students.
         """
         validated_data.pop('password2')  # Remove password2, not needed in model
         
-        # Get role from validated_data, default to STUDENT if not provided
-        role = validated_data.pop('role', User.STUDENT)
+        # Security: Always force STUDENT role for public registration
+        # Even if a malicious request sends role='ADMIN' or 'TEACHER'
+        validated_data.pop('role', None) 
         
         user = User.objects.create_user(
             username=validated_data['username'],
@@ -102,7 +110,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             birth_date=validated_data.get('birth_date'),
             phone=validated_data.get('phone', ''),
             address=validated_data.get('address', ''),
-            role=role,
+            role=User.STUDENT, # Hardcoded for safety
             is_approved=False  # Must be approved by admin
         )
         return user
@@ -168,6 +176,36 @@ class CourseCreateSerializer(serializers.ModelSerializer):
         fields = ['code', 'name', 'description', 'credits']
 
 
+class ScheduleSessionSerializer(serializers.ModelSerializer):
+    """Specific time slot for a course"""
+    assignment_id = serializers.PrimaryKeyRelatedField(
+        queryset=CourseAssignment.objects.all(), source='assignment', write_only=True
+    )
+    course_code = serializers.SerializerMethodField()
+    course_name = serializers.SerializerMethodField()
+    group_name = serializers.SerializerMethodField()
+    teacher_name = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = ScheduleSession
+        fields = [
+            'id', 'assignment_id', 'course_code', 'course_name', 
+            'group_name', 'teacher_name', 'day', 'start_time', 
+            'end_time', 'room', 'session_type'
+        ]
+
+    def get_course_code(self, obj):
+        return obj.assignment.course.code if obj.assignment and obj.assignment.course else None
+
+    def get_course_name(self, obj):
+        return obj.assignment.course.name if obj.assignment and obj.assignment.course else None
+
+    def get_group_name(self, obj):
+        return obj.assignment.group.name if obj.assignment and obj.assignment.group else None
+
+    def get_teacher_name(self, obj):
+        return obj.assignment.teacher.get_full_name() if obj.assignment and obj.assignment.teacher else None
+
 class CourseAssignmentSerializer(serializers.ModelSerializer):
     """
     The 'glue' that tells Flutter which teacher is teaching what to whom.
@@ -176,13 +214,15 @@ class CourseAssignmentSerializer(serializers.ModelSerializer):
     course_name = serializers.CharField(source='course.name', read_only=True)
     course_code = serializers.CharField(source='course.code', read_only=True)
     group_name = serializers.CharField(source='group.name', read_only=True)
+    group_id = serializers.PrimaryKeyRelatedField(source='group', read_only=True)
+    sessions = ScheduleSessionSerializer(many=True, read_only=True)
 
     class Meta:
         model = CourseAssignment
         fields = [
             'id', 'teacher', 'teacher_name',
             'course', 'course_name', 'course_code',
-            'group', 'group_name', 'academic_year'
+            'group', 'group_id', 'group_name', 'academic_year', 'sessions'
         ]
 
 
@@ -371,17 +411,20 @@ class StudentDetailSerializer(serializers.ModelSerializer):
     Includes related data like group and grades.
     """
     
-    group_name = serializers.CharField(source='group.name', read_only=True)
+    group_name = serializers.SerializerMethodField()
     grade_count = serializers.SerializerMethodField()
     
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'first_name', 'last_name',
+            'id', 'username', 'email', 'first_name', 'last_name', 'role',
             'student_id', 'program', 'semester', 'birth_date', 'phone', 'address',
             'profile_picture', 'is_approved', 'rejection_reason', 'group', 'group_name',
             'grade_count'
         ]
+    
+    def get_group_name(self, obj):
+        return obj.group.name if obj.group else None
     
     def get_grade_count(self, obj):
         """How many courses this student has grades for"""
@@ -399,7 +442,7 @@ class TeacherDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = [
-            'id', 'username', 'email', 'first_name', 'last_name',
+            'id', 'username', 'email', 'first_name', 'last_name', 'role',
             'phone', 'courses', 'course_count'
         ]
     

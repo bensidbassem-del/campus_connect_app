@@ -114,20 +114,31 @@ class _RegisterScreenState extends ConsumerState<RegisterScreen> {
                   ),
                 ),
 
-              // Role selection
-              DropdownButtonFormField<String>(
-                initialValue: selectedRole,
-                decoration: const InputDecoration(
-                  labelText: 'I am a...',
-                  border: OutlineInputBorder(),
+              // Informational text instead of a dropdown
+              Container(
+                width: double.infinity,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 16,
+                  vertical: 12,
                 ),
-                items: const [
-                  DropdownMenuItem(value: 'STUDENT', child: Text('Student')),
-                  DropdownMenuItem(value: 'TEACHER', child: Text('Teacher')),
-                ],
-                onChanged: (val) {
-                  if (val != null) setState(() => selectedRole = val);
-                },
+                decoration: BoxDecoration(
+                  color: Colors.blue.withAlpha(20),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: Colors.blue.withAlpha(40)),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.school_rounded, color: Colors.blue, size: 20),
+                    SizedBox(width: 12),
+                    Text(
+                      'Student Account Registration',
+                      style: TextStyle(
+                        color: Colors.blue,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ],
+                ),
               ),
               const SizedBox(height: 12),
 

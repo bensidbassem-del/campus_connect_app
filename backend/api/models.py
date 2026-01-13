@@ -354,3 +354,40 @@ class Notification(models.Model):
 
     def __str__(self):
         return f"{self.notification_type}: {self.title} for {self.user.username}"
+
+# ============================================================================
+# SCHEDULE MODEL - Specific class times/rooms
+# ============================================================================
+class ScheduleSession(models.Model):
+    """
+    Represents a specific time slot for a CourseAssignment.
+    """
+    assignment = models.ForeignKey(CourseAssignment, on_delete=models.CASCADE, related_name='sessions')
+    
+    DAY_CHOICES = [
+        ('MONDAY', 'Monday'),
+        ('TUESDAY', 'Tuesday'),
+        ('WEDNESDAY', 'Wednesday'),
+        ('THURSDAY', 'Thursday'),
+        ('FRIDAY', 'Friday'),
+        ('SATURDAY', 'Saturday'),
+        ('SUNDAY', 'Sunday'),
+    ]
+    
+    day = models.CharField(max_length=10, choices=DAY_CHOICES)
+    start_time = models.TimeField()
+    end_time = models.TimeField()
+    room = models.CharField(max_length=50)
+    
+    SESSION_TYPES = [
+        ('LECTURE', 'Lecture'),
+        ('LAB', 'Lab'),
+        ('TUTORIAL', 'Tutorial'),
+    ]
+    session_type = models.CharField(max_length=20, choices=SESSION_TYPES, default='LECTURE')
+    
+    class Meta:
+        ordering = ['day', 'start_time']
+
+    def __str__(self):
+        return f"{self.assignment.course.code} - {self.day} {self.start_time}"

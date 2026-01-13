@@ -65,6 +65,11 @@ class UsersNotifier extends AsyncNotifier<List<AppUser>> {
         .assignStudentToGroup(studentId, groupId);
     await refresh();
   }
+
+  Future<void> sendMessage(String receiverId, String content) async {
+    await ref.read(adminServiceProvider).sendMessage(receiverId, content);
+    // No refresh needed for user list after sending a message
+  }
 }
 
 // --- Courses Provider ---
@@ -91,6 +96,11 @@ class AdminCoursesNotifier extends AsyncNotifier<List<Course>> {
 
   Future<void> addCourse(String code, String name, int credits) async {
     await ref.read(adminServiceProvider).createCourse(code, name, credits);
+    await refresh();
+  }
+
+  Future<void> deleteCourse(String id) async {
+    await ref.read(adminServiceProvider).deleteCourse(id);
     await refresh();
   }
 }
@@ -120,6 +130,31 @@ class AdminGroupsNotifier extends AsyncNotifier<List<AcademicGroup>> {
   Future<void> addGroup(String name, String academicYear) async {
     await ref.read(adminServiceProvider).createGroup(name, academicYear);
     await refresh();
+  }
+}
+
+// --- Assignments Provider ---
+
+final adminAssignmentsProvider =
+    AsyncNotifierProvider<AdminAssignmentsNotifier, List<CourseAssignment>>(() {
+      return AdminAssignmentsNotifier();
+    });
+
+class AdminAssignmentsNotifier extends AsyncNotifier<List<CourseAssignment>> {
+  @override
+  Future<List<CourseAssignment>> build() async {
+    return _fetch();
+  }
+
+  Future<List<CourseAssignment>> _fetch({String? groupId}) async {
+    return await ref
+        .read(adminServiceProvider)
+        .getAssignments(groupId: groupId);
+  }
+
+  Future<void> refresh({String? groupId}) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _fetch(groupId: groupId));
   }
 }
 
@@ -164,3 +199,87 @@ class AdminTimetablesNotifier extends AsyncNotifier<List<dynamic>> {
     await refresh();
   }
 }
+
+// --- Dynamic Schedule Provider ---
+
+final adminScheduleProvider =
+    AsyncNotifierProvider<AdminScheduleNotifier, List<ScheduleSession>>(() {
+      return AdminScheduleNotifier();
+    });
+
+class AdminScheduleNotifier extends AsyncNotifier<List<ScheduleSession>> {
+  @override
+  Future<List<ScheduleSession>> build() async {
+    return _fetch();
+  }
+
+  Future<List<ScheduleSession>> _fetch({String? groupId}) async {
+    return await ref.read(adminServiceProvider).getSchedule(groupId: groupId);
+  }
+
+  Future<void> refresh({String? groupId}) async {
+    state = const AsyncLoading();
+    state = await AsyncValue.guard(() => _fetch(groupId: groupId));
+  }
+
+  Future<void> addSession(ScheduleSession session) async {
+    await ref.read(adminServiceProvider).createScheduleSession(session);
+    await refresh();
+  }
+
+  Future<void> removeSession(int id) async {
+    await ref.read(adminServiceProvider).deleteScheduleSession(id);
+    await refresh();
+  }
+}
+
+// --- Settings Provider ---
+
+class AdminSettings {
+  final bool pushNotifications;
+  final bool cloudSync;
+  final bool newStudentAlerts;
+
+  AdminSettings({
+    this.pushNotifications = true,
+    this.cloudSync = false,
+    this.newStudentAlerts = true,
+  });
+
+  AdminSettings copyWith({
+    bool? pushNotifications,
+    bool? cloudSync,
+    bool? newStudentAlerts,
+  }) {
+    return AdminSettings(
+      pushNotifications: pushNotifications ?? this.pushNotifications,
+      cloudSync: cloudSync ?? this.cloudSync,
+      newStudentAlerts: newStudentAlerts ?? this.newStudentAlerts,
+    );
+  }
+}
+
+final adminSettingsProvider =
+    StateNotifierProvider<AdminSettingsNotifier, AdminSettings>((ref) {
+      return AdminSettingsNotifier();
+    });
+
+class AdminSettingsNotifier extends StateNotifier<AdminSettings> {
+  AdminSettingsNotifier() : super(AdminSettings());
+
+  void togglePushNotifications() {
+    state = state.copyWith(pushNotifications: !state.pushNotifications);
+  }
+
+  void toggleCloudSync() {
+    state = state.copyWith(cloudSync: !state.cloudSync);
+  }
+
+  void toggleNewStudentAlerts() {
+    state = state.copyWith(newStudentAlerts: !state.newStudentAlerts);
+  }
+}
+
+// --- Navigation Provider ---
+
+final adminTabProvider = StateProvider<int>((ref) => 0);

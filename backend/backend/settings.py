@@ -106,8 +106,8 @@ REST_FRAMEWORK = {
 # 5. When access token expires, Flutter uses refresh token to get new one
 
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Token valid for 1 hour
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh valid for 7 days
+    'ACCESS_TOKEN_LIFETIME': timedelta(days=30),  # Token valid for 1 hour
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=30),     # Refresh valid for 7 days
     'ROTATE_REFRESH_TOKENS': True,                   # Get new refresh when using it
     'BLACKLIST_AFTER_ROTATION': True,                # Invalidate old refresh tokens
     

@@ -46,7 +46,7 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                       'Schedules',
                       Icons.event_note_rounded,
                       [const Color(0xFF6366F1), const Color(0xFF4A80F0)],
-                      _showUploadTimetableDialog,
+                      () => ref.read(adminTabProvider.notifier).state = 3,
                     ),
                   ),
                   const SizedBox(width: 16),
@@ -280,8 +280,28 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
             child: const Text('Cancel'),
           ),
           TextButton(
-            onPressed: () {
-              Navigator.pop(context);
+            onPressed: () async {
+              final nav = Navigator.of(context);
+              final messenger = ScaffoldMessenger.of(context);
+              try {
+                await ref
+                    .read(adminCoursesProvider.notifier)
+                    .deleteCourse(course.id);
+                nav.pop();
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('${course.name} archived successfully'),
+                    backgroundColor: Colors.green,
+                  ),
+                );
+              } catch (e) {
+                messenger.showSnackBar(
+                  SnackBar(
+                    content: Text('Failed to delete course: $e'),
+                    backgroundColor: Colors.red,
+                  ),
+                );
+              }
             },
             child: const Text(
               'Archive',
@@ -449,17 +469,34 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
                   borderRadius: BorderRadius.circular(15),
                 ),
               ),
-              onPressed: () {
+              onPressed: () async {
                 if (sT != null && sG != null) {
-                  ref
-                      .read(adminServiceProvider)
-                      .createAssignment(
-                        int.parse(sT!),
-                        int.parse(course.id),
-                        int.parse(sG!),
-                        yC.text,
-                      );
-                  Navigator.pop(context);
+                  final nav = Navigator.of(context);
+                  final messenger = ScaffoldMessenger.of(context);
+                  try {
+                    await ref
+                        .read(adminServiceProvider)
+                        .createAssignment(
+                          int.parse(sT!),
+                          int.parse(course.id),
+                          int.parse(sG!),
+                          yC.text,
+                        );
+                    nav.pop();
+                    messenger.showSnackBar(
+                      const SnackBar(
+                        content: Text('Course assignment created!'),
+                        backgroundColor: Colors.green,
+                      ),
+                    );
+                  } catch (e) {
+                    messenger.showSnackBar(
+                      SnackBar(
+                        content: Text('Failed: $e'),
+                        backgroundColor: Colors.red,
+                      ),
+                    );
+                  }
                 }
               },
               child: const Text(
@@ -623,85 +660,6 @@ class _CoursesTabState extends ConsumerState<CoursesTab> {
             borderRadius: BorderRadius.circular(15),
             borderSide: BorderSide.none,
           ),
-        ),
-      ),
-    );
-  }
-
-  void _showUploadTimetableDialog() {
-    final groupsAsync = ref.watch(adminGroupsProvider);
-    String? sG;
-    final tC = TextEditingController();
-    final pC = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(30),
-          ),
-          title: const Text(
-            'Broadcast Timetable',
-            style: TextStyle(fontWeight: FontWeight.w800),
-          ),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              groupsAsync.when(
-                data: (groups) => _buildDropdown(
-                  'Target Cohort',
-                  groups
-                      .map(
-                        (g) =>
-                            DropdownMenuItem(value: g.id, child: Text(g.name)),
-                      )
-                      .toList(),
-                  (v) => setDialogState(() => sG = v),
-                ),
-                loading: () => const LinearProgressIndicator(),
-                error: (e, st) => Text('Error: $e'),
-              ),
-              const SizedBox(height: 12),
-              _buildDialogField(tC, 'Broadcast Title'),
-              _buildDialogField(pC, 'Local File Archive Path'),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Dismiss'),
-            ),
-            ElevatedButton(
-              style: ElevatedButton.styleFrom(
-                backgroundColor: primaryBlue,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(15),
-                ),
-              ),
-              onPressed: () {
-                if (sG != null) {
-                  ref
-                      .read(adminTimetablesProvider.notifier)
-                      .uploadTimetable(
-                        groupId: sG!,
-                        title: tC.text,
-                        filePath: pC.text,
-                        semester: 'Spring',
-                        academicYear: '2024-2025',
-                      );
-                  Navigator.pop(context);
-                }
-              },
-              child: const Text(
-                'Broadcast Now',
-                style: TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
         ),
       ),
     );
